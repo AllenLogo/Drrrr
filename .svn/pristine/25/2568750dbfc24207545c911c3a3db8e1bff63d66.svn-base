@@ -1,0 +1,36 @@
+log4j.rootLogger=DEBUG,console,FILE
+
+log4j.appender.console=org.apache.log4j.ConsoleAppender
+log4j.appender.console.threshold=INFO
+log4j.appender.console.layout=org.apache.log4j.PatternLayout
+log4j.appender.console.layout.ConversionPattern=%d{yyyy\u5E74FFMM\u6708dd\u65E5 HH\:mm\:ss} [%5p] - %c -%F(%L) -%m%n
+
+log4j.appender.FILE=org.apache.log4j.RollingFileAppender
+log4j.appender.FILE.Append=true
+log4j.appender.FILE.File=/home/allenlogo/code/log/log4jtest.log
+log4j.appender.FILE.Threshold=INFO
+log4j.appender.FILE.layout=org.apache.log4j.PatternLayout
+log4j.appender.FILE.layout.ConversionPattern=%d{yyyy\u5E74MM\u6708dd\u65E5 HH\:mm\:ss} [%5p] - %c -%F(%L) -%m%n
+log4j.appender.FILE.MaxFileSize=10MB  
+
+log4j.logger.controller.LoginController= DEBUG, test
+log4j.appender.test=org.apache.log4j.RollingFileAppender
+log4j.appender.test.File=/home/allenlogo/code/log/LoginController.log
+log4j.appender.test.layout=org.apache.log4j.PatternLayout
+log4j.appender.test.layout.ConversionPattern=%d %p [%c] - %m%n
+
+log4j.logger.login.impl.LoginInfoServiceImpl= DEBUG, A3
+log4j.appender.A3=org.apache.log4j.RollingFileAppender  
+log4j.appender.A3.File=/home/allenlogo/code/log/LoginInfoServiceImpl.log
+log4j.appender.A3.MaxFileSize=50000KB  
+log4j.appender.A3.MaxBackupIndex=1  
+log4j.appender.A3.layout=org.apache.log4j.PatternLayout  
+log4j.appender.A3.layout.ConversionPattern=%d{yyyy-MM-ddHH:mm:ss}%5p[%t](%F:%L)-%m%n
+
+log4j.logger.login.impl.LoginInfoImpl= DEBUG, A4
+log4j.appender.A4=org.apache.log4j.RollingFileAppender  
+log4j.appender.A4.File=/home/allenlogo/code/log/LoginInfoImpl.log
+log4j.appender.A4.MaxFileSize=50000KB  
+log4j.appender.A4.MaxBackupIndex=1  
+log4j.appender.A4.layout=org.apache.log4j.PatternLayout  
+log4j.appender.A4.layout.ConversionPattern=%d{yyyy-MM-ddHH:mm:ss}%5p[%t](%F:%L)-%m%n

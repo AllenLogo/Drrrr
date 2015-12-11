@@ -1,0 +1,10 @@
+package login.dao;
+
+import javax.servlet.http.HttpServletRequest;
+
+
+public interface LoginServiceDao {
+
+	public String getAllLoingInfo();
+	public boolean insertLoginInfo(String name,HttpServletRequest request);
+}

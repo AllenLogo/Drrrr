@@ -1,0 +1,36 @@
+package dao;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collection;
+
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
+
+public class LoginDao extends JdbcDaoSupport {
+	private String Msg;
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Collection<LoginInfoPo> doquery() {  
+        String sql = "select id,name,ip,logintime from logininfo;";  
+        return getJdbcTemplate().query(sql, new RowMapper() {  
+            public Object mapRow(ResultSet rs, int num) throws SQLException {  
+            	LoginInfoPo logininfo = new LoginInfoPo();  
+            	logininfo.setId(rs.getInt("id"));
+            	logininfo.setName(rs.getString("name"));
+            	logininfo.setIp(rs.getString("ip"));
+            	logininfo.setLogintime(rs.getTimestamp("logintime"));
+                return logininfo;  
+            }  
+        });  
+    }  
+	
+	public String getMsg() {
+		return Msg;
+	}
+
+	public void setMsg(String msg) {
+		Msg = msg;
+	}
+	
+}

@@ -1,0 +1,80 @@
+package login.impl;
+
+import java.sql.Timestamp;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
+
+import net.sf.json.JSONArray;
+
+import login.dao.LoginInfoDao;
+import login.dao.LoginInfoServiceDao;
+import login.entity.LoginInfo;
+
+public class LoginInfoServiceImpl implements LoginInfoServiceDao {
+	
+	private LoginInfoDao logininfoDao;
+	private Logger log = Logger.getLogger(LoginInfoServiceImpl.class);
+
+	
+	public String getAllLoingInfo() {
+		List<LoginInfo> list = logininfoDao.getAllLoingInfo();
+		String json = JSONArray.fromObject(list).toString();
+		log.info(json);
+		return json;
+	}
+
+	public String getLoingInfo(String name, String ip) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getLoingInfo(String name, String ip, Timestamp logintime) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getLoingInfoByName(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getLoingInfoByIp(String ip) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getLoingInfoByLoginTime(Timestamp logintime) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean insertLoginInfo(String name, String ip) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	public LoginInfoDao getLogininfoDao() {
+		return logininfoDao;
+	}
+
+	public void setLogininfoDao(LoginInfoDao logininfoDao) {
+		this.logininfoDao = logininfoDao;
+	}
+	
+	public String getIpAddr(HttpServletRequest request) { 
+	    String ip = request.getHeader("x-forwarded-for"); 
+	    if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
+	        ip = request.getHeader("PRoxy-Client-IP"); 
+	    } 
+	    if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
+	        ip = request.getHeader("WL-Proxy-Client-IP"); 
+	    } 
+	    if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
+	        ip = request.getRemoteAddr(); 
+	    } 
+	    return ip; 
+	}
+}

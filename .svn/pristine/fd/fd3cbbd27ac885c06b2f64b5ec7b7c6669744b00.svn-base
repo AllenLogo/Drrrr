@@ -1,0 +1,8 @@
+package websocket.handler;
+
+import org.springframework.web.socket.WebSocketMessage;
+
+public interface MessageService {
+
+	public String MessageController(WebSocketMessage<?> message);
+}

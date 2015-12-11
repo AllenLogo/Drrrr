@@ -1,0 +1,17 @@
+package login.dao;
+
+import java.sql.Timestamp;
+
+public interface LoginInfoServiceDao {
+
+	public String getAllLoingInfo();
+	
+	public String getLoingInfo(String name,String ip);
+	public String getLoingInfo(String name,String ip,Timestamp logintime);
+	
+	public String getLoingInfoByName(String name);
+	public String getLoingInfoByIp(String ip);
+	public String getLoingInfoByLoginTime(Timestamp logintime);
+	
+	public boolean insertLoginInfo(String name,String ip);
+}

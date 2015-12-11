@@ -1,0 +1,57 @@
+package login.impl;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
+
+import net.sf.json.JSONArray;
+
+import login.dao.LoginInfoDao;
+import login.dao.LoginServiceDao;
+import login.entity.LoginInfo;
+
+public class LoginServiceImpl implements LoginServiceDao {
+	
+	private LoginInfoDao logininfoDao;
+	private Logger log = Logger.getLogger(LoginServiceImpl.class);
+
+	
+	public String getAllLoingInfo() {
+		List<LoginInfo> list = logininfoDao.getAllLoingInfo();
+		String json = JSONArray.fromObject(list).toString();
+		log.info(json);
+		return json;
+	}
+	
+	public boolean insertLoginInfo(String name, HttpServletRequest request) {
+		String ip = getIpAddr(request);
+		log.info("[用户名："+name+"]--[IP地址："+ip+"]--[登录操作]");
+		return logininfoDao.insertLoginInfo(name, ip);
+	}
+	
+	
+	public String getIpAddr(HttpServletRequest request) { 
+	    String ip = request.getHeader("x-forwarded-for"); 
+	    if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
+	        ip = request.getHeader("PRoxy-Client-IP"); 
+	    } 
+	    if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
+	        ip = request.getHeader("WL-Proxy-Client-IP"); 
+	    } 
+	    if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
+	        ip = request.getRemoteAddr(); 
+	    } 
+	    return ip; 
+	}
+	
+	public LoginInfoDao getLogininfoDao() {
+		return logininfoDao;
+	}
+
+	public void setLogininfoDao(LoginInfoDao logininfoDao) {
+		this.logininfoDao = logininfoDao;
+	}
+
+}
