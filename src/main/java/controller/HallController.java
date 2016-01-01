@@ -8,6 +8,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,4 +43,14 @@ public class HallController {
 			return "redirect:hall.jsp";
 		}
 	}
+	
+	@RequestMapping(value = "/addroom/{roomname}",method = RequestMethod.POST)
+	public String addroom(@PathVariable("roomname") String roomname){
+		System.out.println(roomname);
+		return null;
+	}
+	
+	
 }
+
+

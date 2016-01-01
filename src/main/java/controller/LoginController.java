@@ -28,17 +28,14 @@ public class LoginController {
 	
 	@RequestMapping( value="/login",method = RequestMethod.POST )
 	public String test( @RequestParam("name") String name, HttpServletRequest request){
+		//获取用户名、IP并将登陆信息存入数据库
 		List<String> list = loginService.login(name, request);
-		if( list.get(0).equals("1") ){
-			log.info(name+"成功登陆");
-			request.getSession().setAttribute("name", list.get(1));
-			request.getSession().setAttribute("ip", list.get(2));
-			return "redirect:hall.jsp";
-		}else{
-			request.getSession().setAttribute("login_error", list.get(1));
-			log.info(name+"登陆失败");
-			return "redirect:index.jsp";
-		}
+		//用户名、IP、登陆状态存入session
+		request.getSession().setAttribute("name", list.get(0));
+		request.getSession().setAttribute("ip", list.get(1));
+		request.getSession().setAttribute("state", "1");
+		log.info(name+"进入LoginController");
+		return "redirect:hall.jsp";
 	}
 	
 	@RequestMapping( value="/login",method = RequestMethod.GET )

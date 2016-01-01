@@ -23,18 +23,23 @@ public class MyHandshakeInterceptor extends HttpSessionHandshakeInterceptor {
 		if (request instanceof ServletServerHttpRequest) {
 			ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
 			HttpSession session = servletRequest.getServletRequest().getSession(false);
-			if ( session!=null && session.getAttribute("name") != null ) {
-				String name = (String) session.getAttribute("name");
-				String ip = (String) session.getAttribute("ip");
+			
+			String name = session.getAttribute("name") != null ? (String)session.getAttribute("name"):null;
+	        String ip = session.getAttribute("ip") != null ? (String)session.getAttribute("ip"):null;
+	        String state = session.getAttribute("state") != null ? (String)session.getAttribute("state"):null;
+			
+	        if ( name != null && name != "" &&
+	            	ip != null && ip != "" &&
+	            	state == "1" ) {
 				map.put("name", name);
 				map.put("ip", ip);
 				return true;
 			}else{
-				log.info("登陆验证失败！");
+				log.info(name+"验证失败！不能建立websocket链接");
 				return false;
 			}
 		}else{
-			log.info("请求错误");
+			log.info("非法请求");
 			return false;
 		}
 	}
