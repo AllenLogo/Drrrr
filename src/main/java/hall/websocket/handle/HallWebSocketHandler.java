@@ -70,8 +70,6 @@ public class HallWebSocketHandler implements WebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
     	String name = (String) session.getAttributes().get("name");
     	String ip = (String) session.getAttributes().get("ip");
-    	//分配大厅WebSocketSession
-    	Hall.getInstance().insertHall(session);
     	log.info("[用户："+name+"，IP地址："+ip+"，事件：关闭大厅WebSocketSession]");
     	Hall.getInstance().removeHall(session);
     }

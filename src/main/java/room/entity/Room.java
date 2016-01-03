@@ -12,17 +12,20 @@ import org.springframework.web.socket.WebSocketSession;
 public class Room {
 	private Logger log = Logger.getLogger(Room.class);
 	
+	//聊天室名称
 	private String roomName;
+	//聊天室主人
 	private String host;
-	private static List<WebSocketSession> member = Collections.synchronizedList(new ArrayList<WebSocketSession>());
+	//聊天室人数
+	private int count;
+	//聊天室人数
+	private String pwd=null;
+	//聊天室成员
+	private List<WebSocketSession> member = Collections.synchronizedList(new ArrayList<WebSocketSession>());
 	
-	static class RoomHolder {	  
-		 static Room user = new Room();  
+	public Room(){
+		
 	}
-	
-	public static Room getInstance() {    
-	        return RoomHolder.user;  
-	}  
 	
 	public List<WebSocketSession> getMember(){
 		return member;
@@ -42,10 +45,10 @@ public class Room {
 		String ip =  (String) session.getAttributes().get("ip");
 		if( member.contains(session) ){
 			member.remove(session);
-			log.info("[Name:"+name+",IP:"+ip+",事件：关闭WebSocket成功]");
+			log.info("[Name:"+name+",IP:"+ip+",事件：移除链表成功]");
 			return true;
 		}else{
-			log.info("[Name:"+name+",IP:"+ip+",事件：关闭WebSocket失败]");
+			log.info("[Name:"+name+",IP:"+ip+",事件：移除链表失败]");
 			return false;
 		}
 	}
@@ -90,5 +93,25 @@ public class Room {
 
 	public void setHost(String host) {
 		this.host = host;
+	}
+
+	public int getCount() {
+		return count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
+	}
+
+	public boolean getPwd() {
+		return this.pwd != null?true:false;
+	}
+	
+	public boolean getPwd(String pwd) {
+		return this.pwd != null?(this.pwd.equals(pwd)?true:false):true;
+	}
+
+	public void setPwd(String pwd) {
+		this.pwd = pwd;
 	}
 }

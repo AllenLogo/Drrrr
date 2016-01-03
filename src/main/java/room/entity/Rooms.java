@@ -32,6 +32,7 @@ public class Rooms {
 			JSONObject res = JSONObject.fromObject("{}");
 			res.accumulate("roomname", room.getRoomName());
 			res.accumulate("host", room.getHost());
+			res.accumulate("pwd", room.getPwd());
 			result.add(res);
 		}
 		return result.toString();
@@ -63,6 +64,15 @@ public class Rooms {
 			return false;
 		else
 			return true;
+	}
+	
+	public Room findRoomByName(String name){
+		for( Room r : roomList ){
+			if( name.equals(r.getRoomName()) ){
+				return r;
+			}
+		}
+		return null;
 	}
 	
 }

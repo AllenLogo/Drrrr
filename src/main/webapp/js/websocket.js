@@ -71,21 +71,21 @@ function say(msg) {
     if( type == 1 ){
     	roomList = t.room;
     	for( var i in roomList ){
-    		var div = document.createElement("div");
-    		div.innerHTML = roomList[i]["roomname"]+"------"+roomList[i]["host"];
-    		document.body.appendChild(div);
-    		div = null;delete div;
-        }
+    		if( roomList[i]["pwd"] == true ){
+        		$("#roomlist").append("<a href='javascript:addroom(\""+roomList[i]["roomname"]+"\");' id=\""+roomList[i]["roomname"]+"\" >"+roomList[i]["roomname"]+"</a>------"+roomList[i]["host"]+"<br/>");
+    		}else if( roomList[i]["pwd"] == false ){
+        		$("#roomlist").append("<a href='"+"http://" + wsPath + "room/"+encodeURI(encodeURI(roomList[i]["roomname"]))+"' id=\""+roomList[i]["roomname"]+"\" >"+roomList[i]["roomname"]+"</a>------"+roomList[i]["host"]+"<br/>");
+    		}
+    	}
     }else if (type == 2){
     	var room = t.room;
     	roomList.push(room[0]);
-    	var div = document.createElement("div");
-		div.innerHTML = room[0]["roomname"]+"------"+room[0]["host"];
-		document.body.appendChild(div);
-		div = null;delete div;
-		room = null;delete room;
-    }else if( type == 3 ){
-    	//聊天室关闭时，删除大厅显示信息
+    	if( roomList[i]["pwd"] == true ){
+    		$("#roomlist").append("<a href='javascript:addroom(\""+roomList[0]["roomname"]+"\");' id=\""+roomList[i]["roomname"]+"\" >"+roomList[i]["roomname"]+"</a>------"+roomList[i]["host"]+"<br/>");
+		}else if( roomList[i]["pwd"] == false ){
+    		$("#roomlist").append("<a href='"+"http://" + wsPath + "room/"+encodeURI(encodeURI(roomList[0]["roomname"]))+"' id=\""+roomList[i]["roomname"]+"\" >"+roomList[i]["roomname"]+"</a>------"+roomList[i]["host"]+"<br/>");
+		}
+    	room = null;delete room;
     }
     type=null;delete type;
     t = null;delete t;
