@@ -60,6 +60,15 @@ public class Room {
 			return true;
 	}
 	
+	public boolean findMember(String name){
+		for( WebSocketSession m : member ){
+			if( m.getAttributes().get("name").equals(name) )
+				return false;
+				
+		}
+		return true;
+	}
+	
 	public void sendMessage(String message){
 		TextMessage Textmsg = new TextMessage(message.getBytes());
 		String name = null;
@@ -97,6 +106,10 @@ public class Room {
 
 	public int getCount() {
 		return count;
+	}
+	
+	public boolean isCount() {
+		return count >= member.size()?true:false;
 	}
 
 	public void setCount(int count) {

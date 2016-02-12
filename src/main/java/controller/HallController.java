@@ -6,11 +6,13 @@ import hall.entity.Hall;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,9 +38,13 @@ public class HallController {
 		
 		Room room = new Room();
 		
+		//设置聊天室名称
 		room.setRoomName(roomname);
+		//设置聊天室主人
 		room.setHost(name);	
+		//设置聊天室人数
 		room.setCount(member);
+		//设置聊天室密码
 		if( !pwd.equals("") ){
 			room.setPwd(pwd);
 		}
@@ -64,27 +70,52 @@ public class HallController {
 	@ResponseBody
 	@RequestMapping(value = "/addroom/{roomname}",produces = "text/html;charset=UTF-8",method = {RequestMethod.POST})
 	public String addroom(@PathVariable("roomname") String roomname,
-			HttpServletResponse response,String pwd){
+			HttpServletResponse response,
+			String pwd,
+			HttpSession session){
 		String name = getMyURLEncoder(roomname);
 		Room room = Rooms.getInstance().findRoomByName(name);
-		if( room != null && room.getPwd(pwd) ){
-			JSONObject json = JSONObject.fromObject("{}");
-			json.accumulate("type", "success");
-			return json.toString();
+		//判断聊天室是否存在，聊天室密码是否正确
+		if( room != null ){
+			if( room.getPwd(pwd) ){
+				if( room.isCount() ){
+					if( room.findMember(name) ){
+						JSONObject json = JSONObject.fromObject("{}");
+						json.accumulate("type", "success");
+						Rooms.getInstance().insertRooms(room);
+						return json.toString();
+					}else{
+						JSONObject json = JSONObject.fromObject("{}");
+						json.accumulate("type", "error");
+						json.accumulate("content", "\"聊天室已有成员取名："+name+"\"");
+						return json.toString();
+					}
+				}else{
+					JSONObject json = JSONObject.fromObject("{}");
+					json.accumulate("type", "error");
+					json.accumulate("content", "\"聊天室人满\"");
+					return json.toString();
+				}
+			}else{
+				JSONObject json = JSONObject.fromObject("{}");
+				json.accumulate("type", "error");
+				json.accumulate("content", "\"聊天室密码错误\"");
+				return json.toString();
+			}
 		}else{
 			JSONObject json = JSONObject.fromObject("{}");
 			json.accumulate("type", "error");
-			json.accumulate("content", "\"聊天室密码错误\"");
+			json.accumulate("content", "\"聊天室不存在\"");
 			return json.toString();
 		}
 	}
 	
-	@ResponseBody
 	@RequestMapping(value="/room/{roomname}",produces = "text/html;charset=UTF-8",method = RequestMethod.GET)
-	public String room(@PathVariable("roomname") String roomname){  
-		
+	public String room(@PathVariable("roomname") String roomname,Model model,HttpSession session){  
 		String name = getMyURLEncoder(roomname);
-		return name;
+		model.addAttribute("username", name);	
+		session.setAttribute("room", Rooms.getInstance().findRoomByName(name));
+		return "room";
 	}
 	
 	private String getMyURLEncoder(String str){

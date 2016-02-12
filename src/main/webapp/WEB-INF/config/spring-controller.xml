@@ -16,6 +16,7 @@
 	
 	<!-- 配置扫描controller包 -->
 	<context:component-scan base-package="hall.websocket"></context:component-scan>
+	<context:component-scan base-package="room.websocket"></context:component-scan>
 	<context:component-scan base-package="websocket.config"></context:component-scan>
 
 </beans>
