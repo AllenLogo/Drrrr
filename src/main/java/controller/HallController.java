@@ -1,14 +1,14 @@
 package controller;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
 import hall.entity.Hall;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import room.entity.Room;
 import room.entity.Rooms;
+import tools.JsonTool;
 
 @Controller
 public class HallController {
@@ -48,23 +49,20 @@ public class HallController {
 		if( !pwd.equals("") ){
 			room.setPwd(pwd);
 		}
-		
+		Map<String,String> res_map = new HashMap<String,String>();
 
 		if( Rooms.getInstance().insertRooms(room) ){
-			JSONObject json = JSONObject.fromObject("{}");
-	    	json.accumulate("type", 2);
-	    	json.accumulate("room", "[{\"roomname\":\""+roomname+"\",\"host\":\""+name+"\",\"pwd\":\""+room.getPwd()+"\"}]");
-			Hall.getInstance().sendMessage(json.toString());
+			res_map.put("type", "2");
+			res_map.put("room", "[{\"roomname\":\""+roomname+"\",\"host\":\""+name+"\",\"pwd\":\""+room.getPwd()+"\"}]");
+			Hall.getInstance().sendMessage(JsonTool.buildMessage(res_map).toString());
 			log.info("[Name："+name+"，IP："+ip+",事件：创建房间："+roomname+"]");
-			json = JSONObject.fromObject("{}");
-			json.accumulate("type", "success");
-			return json.toString();
+			res_map.clear();
+			res_map.put("type", "success");
 		}else{
-			JSONObject json = JSONObject.fromObject("{}");
-			json.accumulate("type", "error");
-			json.accumulate("content", "\"聊天室名称重复\"");
-			return json.toString();
+			res_map.put("type", "error");
+			res_map.put("content", "\"聊天室名称重复\"");
 		}
+		return JsonTool.buildMessage(res_map).toString();
 	}
 	
 	@ResponseBody
@@ -75,39 +73,31 @@ public class HallController {
 			HttpSession session){
 		String name = getMyURLEncoder(roomname);
 		Room room = Rooms.getInstance().findRoomByName(name);
+		Map<String,String> res_map = new HashMap<String,String>();
 		//判断聊天室是否存在，聊天室密码是否正确
 		if( room != null ){
 			if( room.getPwd(pwd) ){
 				if( room.isCount() ){
 					if( room.findMember(name) ){
-						JSONObject json = JSONObject.fromObject("{}");
-						json.accumulate("type", "success");
+						res_map.put("type", "success");
 						Rooms.getInstance().insertRooms(room);
-						return json.toString();
 					}else{
-						JSONObject json = JSONObject.fromObject("{}");
-						json.accumulate("type", "error");
-						json.accumulate("content", "\"聊天室已有成员取名："+name+"\"");
-						return json.toString();
+						res_map.put("type", "error");
+						res_map.put("content", "\"聊天室已有成员取名："+name+"\"");
 					}
 				}else{
-					JSONObject json = JSONObject.fromObject("{}");
-					json.accumulate("type", "error");
-					json.accumulate("content", "\"聊天室人满\"");
-					return json.toString();
+					res_map.put("type", "error");
+					res_map.put("content", "\"聊天室人满\"");
 				}
 			}else{
-				JSONObject json = JSONObject.fromObject("{}");
-				json.accumulate("type", "error");
-				json.accumulate("content", "\"聊天室密码错误\"");
-				return json.toString();
+				res_map.put("type", "error");
+				res_map.put("content", "\"聊天室密码错误\"");
 			}
 		}else{
-			JSONObject json = JSONObject.fromObject("{}");
-			json.accumulate("type", "error");
-			json.accumulate("content", "\"聊天室不存在\"");
-			return json.toString();
+			res_map.put("type", "error");
+			res_map.put("content", "\"聊天室不存在\"");
 		}
+		return JsonTool.buildMessage(res_map).toString();
 	}
 	
 	@RequestMapping(value="/room/{roomname}",produces = "text/html;charset=UTF-8",method = RequestMethod.GET)

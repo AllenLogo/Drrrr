@@ -10,6 +10,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import room.entity.Room;
+
 
 public class indexFilter extends  OncePerRequestFilter {
 
@@ -31,7 +33,7 @@ public class indexFilter extends  OncePerRequestFilter {
         	ip != null && ip != "" &&
         	state == "1"){
         	//session存在聊天室信息
-        	String room = session.getAttribute("room") != null?(String) session.getAttribute("room"):null;
+        	Room room = session.getAttribute("room") != null?(Room) session.getAttribute("room"):null;
         	if( room != null ){
         		log.info(name+"重新登录系统进入房间："+room);
         	}else{

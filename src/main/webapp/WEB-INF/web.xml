@@ -83,6 +83,11 @@
         <url-pattern>*.html</url-pattern>
         <url-pattern>*.gif</url-pattern>
         <url-pattern>*.png</url-pattern>
+        <url-pattern>*.eot</url-pattern>
+        <url-pattern>*.svg</url-pattern>
+        <url-pattern>*.ttf</url-pattern>
+        <url-pattern>*.woff</url-pattern>
+        <url-pattern>*.woff2</url-pattern>
     </servlet-mapping>
 	
 	<!-- Log4j配置 -->

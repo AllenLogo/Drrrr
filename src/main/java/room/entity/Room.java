@@ -3,11 +3,14 @@ package room.entity;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
+import tools.JsonTool;
 
 public class Room {
 	private Logger log = Logger.getLogger(Room.class);
@@ -24,7 +27,6 @@ public class Room {
 	private List<WebSocketSession> member = Collections.synchronizedList(new ArrayList<WebSocketSession>());
 	
 	public Room(){
-		
 	}
 	
 	public List<WebSocketSession> getMember(){
@@ -32,17 +34,21 @@ public class Room {
 	}
 	
 	public boolean insertMember(WebSocketSession session){
+		String name =  (String) session.getAttributes().get("name") != null?(String) session.getAttributes().get("name"):null;
+		String ip =  (String) session.getAttributes().get("ip") != null?(String) session.getAttributes().get("ip"):null;
 		if( !member.contains(session) ){
 			member.add(session);
-			System.out.println("添加成功");
+			log.info("[Name:"+name+",IP:"+ip+",事件：加入链表成功]");
 			return true;
-		}else
+		}else{
+			log.info("[Name:"+name+",IP:"+ip+",事件：加入链表失败]");
 			return false;
+		}
 	}
 	
 	public boolean removeMember(WebSocketSession session){
-		String name =  (String) session.getAttributes().get("name");
-		String ip =  (String) session.getAttributes().get("ip");
+		String name =  (String) session.getAttributes().get("name") != null?(String) session.getAttributes().get("name"):null;
+		String ip =  (String) session.getAttributes().get("ip") != null?(String) session.getAttributes().get("ip"):null;
 		if( member.contains(session) ){
 			member.remove(session);
 			log.info("[Name:"+name+",IP:"+ip+",事件：移除链表成功]");
@@ -79,7 +85,6 @@ public class Room {
 			if( session.isOpen() ){
 				try {
 					session.sendMessage(Textmsg);
-					System.out.println(message);
 					log.info("[Name:"+name+",IP:"+ip+",服务器发送消息成功："+message+"]");
 				} catch (IOException e) {
 					log.error("[Name:"+name+",IP:"+ip+",服务器发送消息失败："+message+"]");
@@ -88,6 +93,37 @@ public class Room {
 		}
 	}
 
+	public String getRoom_info(){
+		Map<String,String> map = new HashMap<String,String>();
+		map.put("room_name", this.roomName);
+		map.put("room_number", ""+this.member.size());
+		map.put("room_count", ""+this.count);
+		map.put("room_list", getMember_map());
+		
+		String content = JsonTool.buildStrig(map);
+		map.clear();
+		map.put("type", "3");
+		map.put("content", content);
+		return JsonTool.buildStrig(map);
+	}
+	
+	//{"host":{'name':'lpf','style':'zaika'},"number":{'name':'allen','style':'zaika'}}
+	private String getMember_map(){
+		Map<String,String> maps = new HashMap<String,String>();
+		Map<String,String> map = new HashMap<String,String>();
+		String name = "";
+		String style = "";
+		for( WebSocketSession session : member ){
+			name = (String) session.getAttributes().get("name");
+			style = (String) session.getAttributes().get("style");
+			map.put("name", name);
+			map.put("style", style);
+			maps.put(name, JsonTool.buildStrig(map));
+			map.clear();
+		}
+		return JsonTool.buildStrig(maps);
+	}
+	
 	public String getRoomName() {
 		return roomName;
 	}
