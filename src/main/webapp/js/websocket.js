@@ -1,92 +1,103 @@
-/*
- * 申请WebSocket
- * 大厅级别
- * 只接收信息
- * 信息包括：聊天室列表、聊天室新建、聊天室关闭，管理员通知。
- */
+var ws = null;
+
 function startWebSocket() {
 
 	if ('WebSocket' in window) {
 		try {
 			ws = new WebSocket("ws://" + wsPath + "HallWebSocketServer");
 		} catch (e) {
-			alert("链接方式1错误");
+			alert("浏览器不支持");
 		}
 	} else if ('MozWebSocket' in window) {
 		try {
 			ws = new MozWebSocket("ws://" + wsPath + "HallWebSocketServer");
 		} catch (e) {
-			alert("链接方式2错误");
+			alert("浏览器不支持");
 		}
 	} else {
-		alert("无法链接");
+		alert("浏览器不支持");
 	}
-	
-	/*
-	 * 接收信息响应
-	 */
 	ws.onmessage = function(evt) {
-		/*
-		 * 处理信息
-		 */
-		say(evt.data);
+		analyzeMessage(evt.data);
 	};
-
-	/*
-	 * 关闭连接响应
-	 */
 	ws.onclose = function(evt) {
 	};
-
-	/*
-	 * 链接错误响应
-	 */
 	ws.onerror = function(event) {
 	};
-
-	/*
-	 * 链接打开响应
-	 */
 	ws.onopen = function(evt) {
 	};
 	
 }
 /*
  * 信息处理函数
- * 1、分类
- * 2、更新
  * ------------
- *信息分类
- *0、其他消息
+ *信息类型
  *1、所有聊天室信息
  *2、聊天室新建信息
  *3、聊天室关闭信息
- *信息格式：
- *{"type":消息类型1、2、3，"room":[{"聊天室名1","聊天室主人名1"},...]}
- *{"type":1,"room":[{"roomname":"asd","host":"ssaa"}]}
  */
-function say(msg) {
+function analyzeMessage(msg) {
     var t = json_parse(msg);
     var type = t.type;
-    if( type == 1 ){
-    	roomList = t.room;
-    	for( var i in roomList ){
-    		if( roomList[i]["pwd"] == true ){
-        		$("#roomlist").append("<a href='javascript:addroom(\""+roomList[i]["roomname"]+"\");' id=\""+roomList[i]["roomname"]+"\" >"+roomList[i]["roomname"]+"</a>------"+roomList[i]["host"]+"<br/>");
-    		}else if( roomList[i]["pwd"] == false ){
-        		$("#roomlist").append("<a href='"+"http://" + wsPath + "room/"+encodeURI(encodeURI(roomList[i]["roomname"]))+"' id=\""+roomList[i]["roomname"]+"\" >"+roomList[i]["roomname"]+"</a>------"+roomList[i]["host"]+"<br/>");
-    		}
+    if( type == "01" ){
+    	for( var i in t.rooms ){
+    		addRoom(t.rooms[i]);
     	}
-    }else if (type == 2){
-    	var room = t.room;
-    	roomList.push(room[0]);
-    	if( roomList[i]["pwd"] == true ){
-    		$("#roomlist").append("<a href='javascript:addroom(\""+roomList[0]["roomname"]+"\");' id=\""+roomList[i]["roomname"]+"\" >"+roomList[i]["roomname"]+"</a>------"+roomList[i]["host"]+"<br/>");
-		}else if( roomList[i]["pwd"] == false ){
-    		$("#roomlist").append("<a href='"+"http://" + wsPath + "room/"+encodeURI(encodeURI(roomList[0]["roomname"]))+"' id=\""+roomList[i]["roomname"]+"\" >"+roomList[i]["roomname"]+"</a>------"+roomList[i]["host"]+"<br/>");
-		}
-    	room = null;delete room;
+    }else if (type == "02"){
+    	addRoom(t.room);
+    }else if(type == "03"){
+    	updateRoom(t.room);
+    }else if(type == "04"){
+    	removeRoom(t.room);
     }
     type=null;delete type;
     t = null;delete t;
+}
+
+function addRoom(room){
+	if( room["roompwd"] == "true" ){
+		$("#roomlist2").prepend("<div id=\""+
+				room["roomname"]+"\" ><a href='javascript:addroom(\""+
+				room["roomname"]+"\");' >"+
+				room["roomname"]+"</a>------"+
+				room["roomhost"]+"|("+
+				room["roomnumber"]+"/"+
+				room["roomcount"]+")</div>");
+	}else if( room["roompwd"] == "false" ){
+		$("#roomlist1").prepend("<div id=\""+
+				room["roomname"]+"\" ><a href='http://"+
+				wsPath+"room/"+
+				encodeURI(encodeURI(room["roomname"]))+"' >"+
+				room["roomname"]+"</a>------"+
+				room["roomhost"]+"|("+
+				room["roomnumber"]+"/"+
+				room["roomcount"]+")</div>");
+	}
+}
+
+function updateRoom(room){
+	if( room["roompwd"] == "true" ){
+		$("#roomlist2").children("div[id='"+room["roomname"]+"']").html("<a href='javascript:addroom(\""+
+				room["roomname"]+"\");' >"+
+				room["roomname"]+"</a>------"+
+				room["roomhost"]+"|("+
+				room["roomnumber"]+"/"+
+				room["roomcount"]+")");
+	}else if( room["roompwd"] == "false" ){
+		$("#roomlist1").children("div[id='"+room["roomname"]+"']").html("<a href='http://"+
+				wsPath+"room/"+
+				encodeURI(encodeURI(room["roomname"]))+"' >"+
+				room["roomname"]+"</a>------"+
+				room["roomhost"]+"|("+
+				room["roomnumber"]+"/"+
+				room["roomcount"]+")");
+	}
+}
+
+function updateRoom(room){
+	if( room["roompwd"] == "true" ){
+		$("#roomlist2").children("div[id='"+room["roomname"]+"']").remove();
+	}else if( room["roompwd"] == "false" ){
+		$("#roomlist1").children("div[id='"+room["roomname"]+"']").remove();
+	}
 }

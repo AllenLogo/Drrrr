@@ -1,5 +1,7 @@
 package hall.websocket.handle;
 
+import java.io.IOException;
+
 import hall.entity.Hall;
 
 import net.sf.json.JSONObject;
@@ -21,56 +23,46 @@ public class HallWebSocketHandler implements WebSocketHandler {
     /**
      * websocket链接成功，websocketsession加入uer
      * */
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-    	//获取用户的名称，IP信息
-    	String name = (String) session.getAttributes().get("name");
-    	String ip = (String) session.getAttributes().get("ip");
+    public void afterConnectionEstablished(WebSocketSession session){
+    	
     	//分配大厅WebSocketSession
     	Hall.getInstance().insertHall(session);
-    	log.info("[用户："+name+"，IP地址："+ip+"，事件：分配大厅WebSocketSession]");
+    	
     	//发送聊天室信息
-    	try{
-    		JSONObject json = JSONObject.fromObject("{}");
-        	json.accumulate("type", 1);
-        	json.accumulate("room", Rooms.getInstance().getHallRooms());
-        	session.sendMessage(new TextMessage(json.toString().getBytes()));
-    	} catch(Exception e){
-    		e.printStackTrace();
-    	}
+    	JSONObject json = JSONObject.fromObject("{}");
+    	json.accumulate("type", "01");
+    	json.accumulate("rooms", Rooms.getInstance().getHallRooms());
+    	try {
+			session.sendMessage(new TextMessage(json.toString().getBytes()));
+			log.info("[服务器发送信息:"+json.toString()+"]");
+		} catch (IOException e) {
+			String name = (String) (session.getAttributes().get("name")!=null?session.getAttributes().get("naem"):null);
+	    	String ip = (String) (session.getAttributes().get("ip")!=null?session.getAttributes().get("ip"):null);
+			log.info("[用户："+name+"，IP地址："+ip+"，服务器向其发送信息异常:"+e.getMessage()+"]");
+		}
     }
- 
     
     /**
      * websocketsession发送消息
      * */
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-    	//获取用户的名称，IP信息
-    	String name = (String) session.getAttributes().get("name");
-    	String ip = (String) session.getAttributes().get("ip");
-    	//分配大厅WebSocketSession
-    	Hall.getInstance().insertHall(session);
-    	log.info("[用户："+name+"，IP地址："+ip+"，事件：企图用大厅WebSocketSession发送信息]");
+    	//大厅级别websocket发送信息
+    	String name = (String) (session.getAttributes().get("name")!=null?session.getAttributes().get("naem"):null);
+    	String ip = (String) (session.getAttributes().get("ip")!=null?session.getAttributes().get("ip"):null);
+    	log.info("[用户："+name+"，IP地址："+ip+"，事件：企图用大厅WebSocketSession向服务器发送信息<BEGIN>"+message.getPayload().toString()+"<END>]");
     } 
     
     /**
      * webscpoketsession出错 关闭websocketsession
      * */    
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        if(session.isOpen()){
-        	session.close();
         	String name = (String) session.getAttributes().get("name");
         	String ip = (String) session.getAttributes().get("ip");
-        	//分配大厅WebSocketSession
-        	Hall.getInstance().insertHall(session);
-        	log.info("[用户："+name+"，IP地址："+ip+"，事件：大厅WebSocketSession发送错误，关闭当前大厅WebSocketSession]");
-        	Hall.getInstance().removeHall(session);
-        }
+        	log.info("[用户："+name+"，IP地址："+ip+"，事件：大厅WebSocketSession异常<BERGIN>"+exception.getMessage()+"<END>]");
+
     }
  
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-    	String name = (String) session.getAttributes().get("name");
-    	String ip = (String) session.getAttributes().get("ip");
-    	log.info("[用户："+name+"，IP地址："+ip+"，事件：关闭大厅WebSocketSession]");
     	Hall.getInstance().removeHall(session);
     }
  

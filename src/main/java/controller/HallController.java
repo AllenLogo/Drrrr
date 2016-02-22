@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,11 +23,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import room.entity.Room;
 import room.entity.Rooms;
 import tools.JsonTool;
+import tools.Styles;
 
 @Controller
 public class HallController {
 
 	private Logger log = Logger.getLogger(HallController.class);
+	@Autowired
+	private Styles styleList;
 
 	@ResponseBody
 	@RequestMapping(value = "/createroom",produces = "text/html;charset=UTF-8",method = RequestMethod.POST)
@@ -52,9 +56,9 @@ public class HallController {
 		Map<String,String> res_map = new HashMap<String,String>();
 
 		if( Rooms.getInstance().insertRooms(room) ){
-			res_map.put("type", "2");
-			res_map.put("room", "[{\"roomname\":\""+roomname+"\",\"host\":\""+name+"\",\"pwd\":\""+room.getPwd()+"\"}]");
-			Hall.getInstance().sendMessage(JsonTool.buildMessage(res_map).toString());
+			res_map.put("type", "02");
+			res_map.put("room", room.getHall_Room_info());
+			Hall.getInstance().sendMessage(JsonTool.buildStrig(res_map));
 			log.info("[Name："+name+"，IP："+ip+",事件：创建房间："+roomname+"]");
 			res_map.clear();
 			res_map.put("type", "success");
@@ -103,8 +107,12 @@ public class HallController {
 	@RequestMapping(value="/room/{roomname}",produces = "text/html;charset=UTF-8",method = RequestMethod.GET)
 	public String room(@PathVariable("roomname") String roomname,Model model,HttpSession session){  
 		String name = getMyURLEncoder(roomname);
-		model.addAttribute("username", name);	
-		session.setAttribute("room", Rooms.getInstance().findRoomByName(name));
+		model.addAttribute("username", name);
+		Room room = Rooms.getInstance().findRoomByName(name);
+		if( room != null ){
+			session.setAttribute("room", room);
+			session.setAttribute("style", styleList.getRandomStyle());
+		}
 		return "room";
 	}
 	

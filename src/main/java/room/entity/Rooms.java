@@ -7,7 +7,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 public class Rooms {
 
@@ -29,11 +28,7 @@ public class Rooms {
 	public String getHallRooms(){
 		JSONArray result = JSONArray.fromObject("[]");
 		for( Room room : roomList ){
-			JSONObject res = JSONObject.fromObject("{}");
-			res.accumulate("roomname", room.getRoomName());
-			res.accumulate("host", room.getHost());
-			res.accumulate("pwd", room.getPwd());
-			result.add(res);
+			result.add(room.getHall_Room_info());
 		}
 		return result.toString();
 	}

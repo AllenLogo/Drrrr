@@ -10,21 +10,27 @@ String name = (String) session.getAttribute("name");
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf8" />
-<title>无标题文档</title>
-<link rel="stylesheet" href="css/common.css"/><!-- 基本样式 -->
-
-<style>
-div {
-	margin-left: auto;
-	margin-right: auto;
-}
-</style>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf8" />
+	<title>聊天室大厅</title>
+	
+	<!-- 基本样式 -->
+	<link rel="stylesheet" href="css/common.css"/>
+	<style>
+	div {
+		margin-left: auto;
+		margin-right: auto;
+	}
+	</style>
 </head>
+
 <body onload="startWebSocket()">
-	<div>WebSocket聊天室大厅
-	<a href="javascript:;" class="demo6">创建聊天室</a>
+	
+	<div>
+		WebSocket聊天室大厅
+		<a href="javascript:;" class="demo6">创建聊天室</a>
 	</div>
+	
+	<!-- HBox1 begin -->
 	<div id="HBox1">
 				<ul class="list">
 					<li>
@@ -45,8 +51,10 @@ div {
 					</li>
 					<li><input type="submit" id="submitBtn1" value="确认提交" class="submitBtn" /></li>
 				</ul>
-		</div><!-- HBox end -->
+		</div>
+		<!-- HBox1 end -->
 		
+		<!-- HBox begin -->
 		<div id="HBox">
 				<ul class="list">
 					<li>
@@ -55,30 +63,43 @@ div {
 					</li>
 					<li><input type="submit" id="submitBtn" value="确认提交" class="submitBtn" /></li>
 				</ul>
-		</div><!-- HBox1 end -->
-	<div style="border:1px solid #09F"></div>
-	
-	<div style="border:1px solid #09F"></div>
-	聊天室列表
-	<div id="roomlist" ></div>
-
+		</div>
+		<!-- HBox end -->
+		
+		<!-- 分割线 -->
+		<div style="border:1px solid #09F"></div>
+		<div style="border:1px solid #09F"></div>
+		
+		<!-- 无密码聊天室区域 -->
+		<div style="float:left; width:30%; position: absolute;left: 10%;" align="center">
+			<span>聊天室---无密码</span>
+			<div id="roomlist1" ></div>
+		</div>
+		
+		<!-- 有密码聊天室密码区域 -->
+		<div style="float:left; width:30%; position: absolute;right: 10%;" align="center">
+			<span>聊天室---有密码</span>
+			<div id="roomlist2" ></div>
+		</div>
+<!-- json解析 -->
 <script type="text/javascript" src="js/JSON-js-master/json_parse_state.js" ></script>
+<!-- jquery库 -->
 <script type="text/javascript" src="js/jquery-1.11.1.min.js" ></script>
+<!-- 弹出框库 -->
 <script src="js/jquery.hDialog.min.js"></script>
-<script type="text/javascript" src="js/websocket.js"></script>
 <script type="text/javascript">
-	var ws = null;
+	/* 全局变量 */
 	var name = "<%=name %>";
 	var wsPath = "<%=wsPath %>";
 	var basePath = '<%=basePath %>';
-	var roomList = new Array();
 
+	/* 创建弹出框 */
 	var $el = $('.dialog');
 	$('.demo6').hDialog({box:'#HBox1',width:600,height: 300,modalHide: false});
 	
-	//提交并验证表单
+	/* 创建聊天室 */
 	$('#submitBtn1').click(function() {
-		var Number = /^[0-9]+$/ ; //手机正则
+		var Number = /^[0-9]+$/ ;
 		var $roomname = $('.roomname');
 		var $member = $('.member'); 
 		var $pwd1 = $('.pwd1');
@@ -95,6 +116,14 @@ div {
 			CreateRoom($roomname.val(),$member.val(),$pwd1.val(),$el);
 		}
 	});
+	
+	/* 有密码聊天室密码弹出框 */
+	function addroom(roomname){
+		$("#submitBtn").attr("name",roomname);
+		$('#'+roomname).hDialog({box:'#HBox',width:600,height: 150,modalHide: false});
+		$('#'+roomname).trigger("click");
+	}
+	/* 加入有密码聊天室 */
 	$('#submitBtn').click(function() { 
 		var $pwd = $('#pwd');
 		if($pwd.val() == "" ){
@@ -103,13 +132,11 @@ div {
 			AddRoom($("#submitBtn").attr("name"),$pwd.val(),$el);
 		}
 	});
-	function addroom(roomname){
-		$("#submitBtn").attr("name",roomname);
-		$('#'+roomname).hDialog({box:'#HBox',width:600,height: 150,modalHide: false});
-		$('#'+roomname).trigger("click");
-	}
 	
 </script>	
+<!-- WebSocket -->
+<script type="text/javascript" src="js/websocket.js"></script>
+<!-- 提交 -->
 <script type="text/javascript" src="js/post.js"></script>
 </body>
 </html>

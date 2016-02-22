@@ -30,10 +30,10 @@ public class Hall {
 		String ip =  (String) session.getAttributes().get("ip");
 		if( !hallList.contains(session) ){
 			hallList.add(session);
-			log.info("[Name:"+name+",IP:"+ip+",事件：添加池成功]");
+			log.info("[Name:"+name+",IP:"+ip+",事件：添加Hall池成功]");
 			return true;
 		}else{
-			log.info("[Name:"+name+",IP:"+ip+",事件：添加池失败]");
+			log.info("[Name:"+name+",IP:"+ip+",事件：添加Hall池失败]");
 			return false;
 		}
 	}
@@ -43,10 +43,10 @@ public class Hall {
 		String ip =  (String) session.getAttributes().get("ip");
 		if( hallList.contains(session) ){
 			hallList.remove(session);
-			log.info("[Name:"+name+",IP:"+ip+",事件：移除池成功]");
+			log.info("[Name:"+name+",IP:"+ip+",事件：移除Hall池成功]");
 			return true;
 		}else{
-			log.info("[Name:"+name+",IP:"+ip+",事件：移除池失败]");
+			log.info("[Name:"+name+",IP:"+ip+",事件：移除Hall池失败]");
 			return false;
 		}
 	}

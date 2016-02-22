@@ -32,15 +32,15 @@ String name = (String) session.getAttribute("name");
     		<div class="message_box_inner">
         		<div class="clearfix">
           			<h2 id="room_name" class="select-text">
-            			<span class="room-title-capacity">(2/5)</span>
-            			<span class="room-title-name">作业</span>
+            			<span class="room-title-capacity">(/)</span>
+            			<span class="room-title-name"></span>
           			</h2>
           			<span class="to-whom">To</span>
         		</div>
 
 		        <div class="room-input-wrap">
 			        <p class="lead emoji-picker-container">
-			        	<textarea id="textmsg" name="message" placeholder="Textarea" data-emojiable="true" class="form-control" tabindex="1" maxlength="140" rows="3"></textarea>
+			        	<textarea id="textmsg" name="message" placeholder="Textarea" data-emojiable="true" class="form-control" tabindex="1" maxlength="140" ></textarea>
 					</p>
 		        </div>
 
@@ -50,7 +50,6 @@ String name = (String) session.getAttribute("name");
 
 		      <div style="display: block;" id="setting_pannel" class="panel-hide is-host">
 		        <ul id="user_list" class="user-list">
-		        	
 		        </ul>
 		      </div>
     		</div>
@@ -58,26 +57,6 @@ String name = (String) session.getAttribute("name");
 	</div>
 	<!-- begin talk show div -->
 	<div id="talks" class="talks select-none">
-		<!-- bakyura -->
-		<!-- bakyura-2x -->
-		<!-- gg -->
-		<!-- setton -->
-		<!-- setton-2x -->
-		<!-- kanra -->
-		<!-- kanra-2x -->
-		<!-- zaika -->
-		<!-- zaika-2x -->
-		<!-- zawa -->
-		<!-- kakka -->
-		<!-- eight -->
-		<!-- san-2x -->
-		<!-- kyo-2x -->
-		<!-- sharo-2x -->
-		<!-- junsui-2x -->
-		<!-- saki-2x -->
-		<!-- kuromu-2x -->
-		<!-- gaki-2x -->
-		<!-- admin -->
 			
 	</div>
 	<!-- end talk show div -->

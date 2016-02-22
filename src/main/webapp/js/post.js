@@ -1,4 +1,10 @@
-// 创建聊天室
+/**
+ * 创建聊天室
+ * @param roomname
+ * @param member
+ * @param pwd
+ * @param $el
+ */
 function CreateRoom(roomname,member,pwd,$el) {
 	var submitData = {
 		"roomname" : roomname,
@@ -19,7 +25,12 @@ function CreateRoom(roomname,member,pwd,$el) {
 		
 	});
 }
-
+/**
+ * 加入聊天室
+ * @param roomname
+ * @param pwd
+ * @param $el
+ */
 function AddRoom(roomname,pwd,$el) {
 	var submitData = {
 		"pwd":pwd,

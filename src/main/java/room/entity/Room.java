@@ -124,6 +124,13 @@ public class Room {
 		return JsonTool.buildStrig(maps);
 	}
 	
+	/**
+	 * @return 新增聊天室，大厅更新聊天室列表所需信息
+	 */
+	public String getHall_Room_info(){
+		return JsonTool.buildMessage_hall_02(roomName, host, this.member.size(), count, getPwd());
+	}
+	
 	public String getRoomName() {
 		return roomName;
 	}
