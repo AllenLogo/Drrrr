@@ -40,8 +40,4 @@
 				</list>
 			</property>
 		</bean>
-		<bean id="mwsDao" class="websocket.impl.MyWebSocketPool" ></bean>
-		<bean id="wsPool" class="websocket.impl.WebSocketSessionPool" ></bean>
-		<bean id="msgDao" class="websocket.impl.MessageImpl" ></bean>
-		
 </beans>
