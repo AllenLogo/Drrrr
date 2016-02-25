@@ -56,8 +56,7 @@ public class LoginInterceptor implements HandlerInterceptor{
 	public boolean preHandle(HttpServletRequest arg0, HttpServletResponse arg1,
 			Object arg2) throws Exception {
 		// TODO Auto-generated method stub
-		System.out.println("/login请求拦截");
-		//arg1.sendRedirect("");
+		System.out.println("/login请求拦截");        
 		return true;
 	}
 }

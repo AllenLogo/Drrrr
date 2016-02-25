@@ -15,6 +15,7 @@
 	<context:annotation-config />
 	
 	<bean id="myFilter" class="filter.indexFilter"  ></bean>
+	<bean id="HallFilter" class="hall.filter.HallFilter"  ></bean>
 	
 	<import resource="spring-database.xml"/>
 	<import resource="spring-service.xml"/>
@@ -34,6 +35,10 @@
     	<mvc:interceptor>
     		<mvc:mapping path="/login"/>
     		<bean class="login.interceptor.LoginInterceptor" ></bean>
+    	</mvc:interceptor>
+    	<mvc:interceptor>
+    		<mvc:mapping path="/hall.jsp"/>
+    		<bean class="hall.interceptor.Hallinterceptor" />
     	</mvc:interceptor>
     </mvc:interceptors> -->
 

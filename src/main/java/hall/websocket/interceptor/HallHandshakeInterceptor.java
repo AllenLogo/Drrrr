@@ -3,7 +3,6 @@ package hall.websocket.interceptor;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.Logger;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -13,8 +12,6 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 
 
 public class HallHandshakeInterceptor extends HttpSessionHandshakeInterceptor {
-	
-	private Logger log  = Logger.getLogger(HallHandshakeInterceptor.class);
 
 	@Override
 	public boolean beforeHandshake(ServerHttpRequest request,ServerHttpResponse response, WebSocketHandler handler,Map<String,Object> map) throws Exception {
@@ -35,11 +32,9 @@ public class HallHandshakeInterceptor extends HttpSessionHandshakeInterceptor {
 				map.put("ip", ip);
 				return true;
 			}else{
-				log.info(name+"验证失败！不能建立websocket链接");
 				return false;
 			}
 		}else{
-			log.info("非法请求");
 			return false;
 		}
 	}

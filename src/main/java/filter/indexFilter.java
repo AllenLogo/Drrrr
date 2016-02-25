@@ -6,39 +6,43 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.log4j.Logger;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import room.entity.Room;
 
 
 public class indexFilter extends  OncePerRequestFilter {
-
-	//日志
-	private Logger log = Logger.getLogger(indexFilter.class);
 	
 	@Override
 	protected void doFilterInternal(HttpServletRequest servletRequest,
 			HttpServletResponse servletResponse, FilterChain filterChain)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
+		//获取对象
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpSession session = request.getSession();
-        //session存在登录信息，跳转大厅页面；否则跳转登录页面
+
+        //获取用户基本信息
         String name = session.getAttribute("name") != null ? (String)session.getAttribute("name"):null;
         String ip = session.getAttribute("ip") != null ? (String)session.getAttribute("ip"):null;
         String state = session.getAttribute("state") != null ? (String)session.getAttribute("state"):null;
+        
+        //验证用户是否登录
         if( name != null && name != "" &&
         	ip != null && ip != "" &&
-        	state == "1"){
-        	//session存在聊天室信息
+        	state == "1"  ){
+ 
+        	//验证用户是否在聊天室
         	Room room = session.getAttribute("room") != null?(Room) session.getAttribute("room"):null;
-        	if( room != null ){
-        		log.info(name+"重新登录系统进入房间："+room);
+        	String style  = session.getAttribute("style") != null?(String)session.getAttribute("style"):null;
+        	
+        	if( room != null && room.isOpen() && style != null && style !=""){
+        		
+        		servletResponse.sendRedirect("room/"+room.getRoomName());
+        	
         	}else{
-        		log.info(name+"重新登录系统进入大厅");
+        		
         		servletResponse.sendRedirect("hall.jsp");
+        		
         	}
         }else{
         	//设置session过期时间
