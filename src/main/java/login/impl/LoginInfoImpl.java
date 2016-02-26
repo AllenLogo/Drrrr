@@ -1,3 +1,8 @@
+/**
+ * 作者：李鹏飞
+ * 时间：2016-2-25
+ * 数据库处理
+ */
 package login.impl;
 
 import java.sql.ResultSet;
@@ -11,6 +16,8 @@ import login.entity.LoginInfo;
 import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
+
+import user.User;
 
 
 public class LoginInfoImpl extends JdbcDaoSupport implements LoginInfoDao  {
@@ -58,15 +65,10 @@ public class LoginInfoImpl extends JdbcDaoSupport implements LoginInfoDao  {
 		return null;
 	}
 
-	public boolean insertLoginInfo(String name, String ip) {
-		String sql = "insert into logininfo(name,ip) values(?,?);";
-		log.info("SQL语句："+sql+"--参数1："+name+"--参数2："+ip);
-		int result = getJdbcTemplate().update(sql, name,ip);
-		if( result == 1 ){
-			return true;
-		}else{
-			return false;
-		}
+	public void insertLoginInfo(User user) {
+		StringBuilder sql = new StringBuilder("insert into logininfo(name,ip) values(?,?);");
+		log.info("SQL语句："+sql.toString()+"--参数1："+user.getName()+"--参数2："+user.getIp());
+		getJdbcTemplate().update(sql.toString(), user.getName(),user.getIp());
 	}
 
 }

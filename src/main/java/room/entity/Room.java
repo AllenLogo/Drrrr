@@ -1,3 +1,8 @@
+/**
+ * 作者：李鹏飞
+ * 时间：2026-2-26
+ * 聊天室实体类
+ */
 package room.entity;
 
 
@@ -5,35 +10,41 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import tools.JsonTool;
+import user.User;
 
 public class Room {
 	private Logger log = Logger.getLogger(Room.class);
 	
-	private String roomName;				//聊天室名称
-	private String host;					//聊天室主人
-	private int count;						//聊天室限制人数
-	private int number;					//聊天室实际人数
-	private String pwd;						//聊天室密码
-	private List<WebSocketSession> member;	//聊天室成员链表
-	private boolean roomState;				//聊天室状态标志
+	private String roomName;					//聊天室名称
+	private String host;						//聊天室主人
+	private int count;							//聊天室限制人数
+	private int number;						//聊天室实际人数
+	private String pwd;							//聊天室密码
+	private List<WebSocketSession> sessions;	//聊天室websocket链表
+	private Set<String> user;					//聊天室成员链表
+	private boolean roomState=false;			//聊天室状态标志
 	
 	/**
 	 * 构造函数
 	 */
 	public Room(String roomName,String host,int count,String pwd){
-		setRoomName(roomName);
-		setHost(host);
-		setCount(count);
-		setPwd(pwd);
-		member = Collections.synchronizedList(new ArrayList<WebSocketSession>());
-		OpenRoom();
+		this.setRoomName(roomName);
+		this.setHost(host);
+		this.setCount(count);
+		this.setPwd(pwd);
+		this.number=0;
+		this.sessions = Collections.synchronizedList(new ArrayList<WebSocketSession>());
+		this.user = new HashSet<String>();
+		this.OpenRoom();
 	}
 	
 	/**
@@ -48,20 +59,27 @@ public class Room {
 	 */
 	public boolean insertMember(WebSocketSession session){
 		if( !this.isOpen() ){return false;}
-		if(this.number >= count) {return false;}
 		
-		String name =  (String) session.getAttributes().get("name") != null?(String) session.getAttributes().get("name"):null;
-		String ip =  (String) session.getAttributes().get("ip") != null?(String) session.getAttributes().get("ip"):null;
-		if( session.isOpen() && !member.contains(session)  ){
-			this.member.add(session);
-			this.number++;
-			log.info("[Name:"+name+",IP:"+ip+",事件：加入聊天室"+roomName+"成功]");
+		if( session.isOpen() && !sessions.contains(session)  ){
+			this.sessions.add(session);
 			return true;
 		}else{
-			log.info("[Name:"+name+",IP:"+ip+",事件：加入聊天室"+roomName+"成功]");
 			return false;
 		}
 	}
+	
+	public boolean addUser(String name){
+		if(!this.isOpen()){return false;}
+		if(this.number >= count) {return false;}
+		if(!this.user.contains(name)){
+			this.user.add(name);
+			this.number++;
+			return true;
+		}
+		return false;
+	}
+	
+	
 	
 	/**
 	 * 
@@ -75,19 +93,21 @@ public class Room {
 	 */
 	public boolean removeMember(WebSocketSession session){
 		if( !this.isOpen() ){return false;}
-		if(this.number == 0) {return false;}
-		
-		String name =  (String) session.getAttributes().get("name") != null?(String) session.getAttributes().get("name"):null;
-		String ip =  (String) session.getAttributes().get("ip") != null?(String) session.getAttributes().get("ip"):null;
-		if( this.member.contains(session) ){
-			this.member.remove(session);
-			this.number--;
-			if (this.number == 0){this.dectoryRoom();}
-			log.info("[Name:"+name+",IP:"+ip+",事件：移除聊天室"+roomName+"成功]");
+
+		if( this.sessions.contains(session) ){
+			this.sessions.remove(session);
 			return true;
 		}else{
-			log.info("[Name:"+name+",IP:"+ip+",事件：移除聊天室"+roomName+"成功]");
 			return false;
+		}
+	}
+	
+	public void remvoeUser(String name){
+		if(!this.isOpen()){return ;}
+		if(this.number >= count) {return ;}
+		if(this.user.contains(name)){
+			this.user.remove(name);
+			this.number--;
 		}
 	}
 	
@@ -102,7 +122,7 @@ public class Room {
 	 */
 	public boolean findMember(String name){
 		if( !this.isOpen() ){return false;}
-		for( WebSocketSession m : member ){
+		for( WebSocketSession m : sessions ){
 			if( m.getAttributes().get("name").equals(name) )
 				return true;
 				
@@ -113,13 +133,13 @@ public class Room {
 	public void sendMessage(String message){
 		if( !this.isOpen() ){return ;}
 		TextMessage Textmsg = new TextMessage(message.getBytes());
-		for( WebSocketSession session : member ){
+		for( WebSocketSession session : sessions ){
 			if( session.isOpen() ){
 				try {
 					session.sendMessage(Textmsg);
-					log.info("[Name:"+session.getAttributes().get("name")+",IP:"+session.getAttributes().get("ip")+",服务器发送消息成功："+message+"]");
+					log.info("[服务器发送消息成功："+message+"]");
 				} catch (IOException e) {
-					log.error("[Name:"+session.getAttributes().get("name")+",IP:"+session.getAttributes().get("ip")+",服务器发送消息失败："+message+"]");
+					log.error("[服务器发送消息失败："+message+"]");
 				}
 			}
 		}
@@ -129,7 +149,7 @@ public class Room {
 		if( !this.isOpen() ){return "";}
 		Map<String,String> map = new HashMap<String,String>();
 		map.put("room_name", this.roomName);
-		map.put("room_number", ""+this.member.size());
+		map.put("room_number", ""+this.number);
 		map.put("room_count", ""+this.count);
 		map.put("room_list", getMember_map());
 		
@@ -145,14 +165,12 @@ public class Room {
 		if( !this.isOpen() ){return "";}
 		Map<String,String> maps = new HashMap<String,String>();
 		Map<String,String> map = new HashMap<String,String>();
-		String name = "";
-		String style = "";
-		for( WebSocketSession session : member ){
-			name = (String) session.getAttributes().get("name");
-			style = (String) session.getAttributes().get("style");
-			map.put("name", name);
-			map.put("style", style);
-			maps.put(name, JsonTool.buildStrig(map));
+		User user;
+		for( WebSocketSession session : sessions ){
+			user =(User) session.getAttributes().get("user");
+			map.put("name", user.getName());
+			map.put("style", user.getStyle());
+			maps.put(user.getName(), JsonTool.buildStrig(map));
 			map.clear();
 		}
 		return JsonTool.buildStrig(maps);
@@ -163,7 +181,7 @@ public class Room {
 	 */
 	public String getHall_Room_info(){
 		if( !this.isOpen() ){return "";}
-		return JsonTool.buildMessage_hall_02(roomName, host, this.member.size(), count, getPwd());
+		return JsonTool.buildMessage_hall_02(roomName, host, number, count, getPwd());
 	}
 	
 	/**
@@ -173,7 +191,7 @@ public class Room {
 	 */
 	private void dectoryRoom(){
 		if( !this.isOpen() ){return ;}
-		this.member.clear();
+		this.sessions.clear();
 		this.CloseRoom();
 		Rooms.getInstance().removeRooms(this);
 	}

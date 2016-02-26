@@ -1,3 +1,11 @@
+/**
+ * 作者：李鹏飞
+ * 时间：2016-2-26
+ * 大厅级别请求处理
+ * 作用：
+ * 1、创建聊天室
+ * 2、加入聊天室
+ */
 package controller;
 
 import java.util.HashMap;
@@ -22,7 +30,8 @@ import room.entity.Room;
 import room.entity.Rooms;
 import tools.JsonTool;
 import tools.Styles;
-import tools.StringTool;;
+import tools.StringTool;
+import user.User;
 
 @Controller
 public class HallController {
@@ -38,17 +47,16 @@ public class HallController {
 							   @RequestParam(name="pwd") String pwd,
 							   HttpServletRequest request){
 		
-		String name = request.getSession().getAttribute("name")==null? null:(String) request.getSession().getAttribute("name");
-		String ip = request.getSession().getAttribute("ip")==null? null:(String) request.getSession().getAttribute("ip");
+		User user = (User) request.getSession().getAttribute("user");
 		
-		Room room = new Room(roomname,name,member,pwd);
+		Room room = new Room(roomname,user.getName(),member,pwd);
 		Map<String,String> res_map = new HashMap<String,String>();
 
 		if( Rooms.getInstance().insertRooms(room) ){
 			res_map.put("type", "02");
 			res_map.put("room", room.getHall_Room_info());
 			Hall.getInstance().sendMessage(JsonTool.buildStrig(res_map));
-			log.info("[Name："+name+"，IP："+ip+",事件：创建房间："+roomname+"]");
+			log.info("[Name："+user.getName()+"，IP："+user.getIp()+",事件：创建房间："+roomname+"]");
 			res_map.clear();
 			res_map.put("type", "success");
 		}else{
@@ -73,7 +81,6 @@ public class HallController {
 				if( room.isCount() ){
 					if( room.findMember(name) ){
 						res_map.put("type", "success");
-						Rooms.getInstance().insertRooms(room);
 					}else{
 						res_map.put("type", "error");
 						res_map.put("content", "\"聊天室已有成员取名："+name+"\"");
@@ -97,13 +104,18 @@ public class HallController {
 	@RequestMapping(value="/room/{roomname}",produces = "text/html;charset=UTF-8",method = RequestMethod.GET)
 	public String room(@PathVariable("roomname") String roomname,HttpSession session){  
 		String name = StringTool.getMyURLEncoder(roomname);
-		Room room = (Room) session.getAttribute("room");
+		User user = (User) session.getAttribute("user");
+		Room room = null;
+		if (user == null) {
+			return "redirect:/hall.jsp";
+		}
+		room = user.getRoom();
 		if(room == null || room.getRoomName().equals(name)){
 			room = Rooms.getInstance().findRoomByName(name);
 		}
 		if(room != null && room.isOpen() && room.isCount()){
-			session.setAttribute("room", room);
-			session.setAttribute("style", styleList.getRandomStyle());
+			user.setRoom(room);
+			user.setStyle(styleList.getRandomStyle());
 			return "room";
 		}else{
 			return "redirect:/hall.jsp";

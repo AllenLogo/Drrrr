@@ -1,10 +1,16 @@
+/**
+ * 作者：李鹏飞
+ * 时间：2016-2-25
+ * 登录信息数据库处理
+ * 解析得到用户名、IP地址存入数据库
+ */
 package login.impl;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import user.User;
 
 
 import login.dao.LoginInfoDao;
@@ -15,16 +21,12 @@ public class LoginServiceImpl implements LoginServiceDao {
 	private LoginInfoDao logininfoDao;
 	
 	//登陆流程
-	public List<String> login(String name, HttpServletRequest request) {
-		List<String> result = new ArrayList<String>();
-		//第一步：获取IP地址
-		String ip = getIpAddr(request);
-		//第二步：用户名、IP存入数据库
-		result.add(name);
-		result.add(ip);
-		logininfoDao.insertLoginInfo(name, ip);
-		//第三步：返回
-		return result;
+	public User login(String name, HttpServletRequest request) {
+		User user = new User();
+		user.setName(name);
+		user.setIp(getIpAddr(request));
+		logininfoDao.insertLoginInfo(user);
+		return user;
 	}
 	
 	public String getIpAddr(HttpServletRequest request) { 

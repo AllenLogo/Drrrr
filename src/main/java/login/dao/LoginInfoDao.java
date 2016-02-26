@@ -3,6 +3,8 @@ package login.dao;
 import java.sql.Timestamp;
 import java.util.List;
 
+import user.User;
+
 import login.entity.LoginInfo;
 
 
@@ -17,5 +19,5 @@ public interface LoginInfoDao {
 	public List<LoginInfo> getLoingInfoByIp(String ip);
 	public List<LoginInfo> getLoingInfoByLoginTime(Timestamp logintime);
 	
-	public boolean insertLoginInfo(String name,String ip);
+	public void insertLoginInfo(User user);
 }

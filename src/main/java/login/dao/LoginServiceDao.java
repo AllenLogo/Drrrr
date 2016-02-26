@@ -1,11 +1,12 @@
 package login.dao;
 
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+
+import user.User;
 
 
 public interface LoginServiceDao {
 
-	public List<String> login(String name,HttpServletRequest request);
+	public User login(String name,HttpServletRequest request);
 }

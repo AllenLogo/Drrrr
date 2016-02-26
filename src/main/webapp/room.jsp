@@ -4,9 +4,6 @@ String path = request.getContextPath();
 String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
 String wsPath = request.getServerName()+":"+request.getServerPort()+path+"/";
 %>
-<%
-String name = (String) session.getAttribute("name");
- %>
 <!doctype html>
 <html lang="zh">
 <head>
@@ -79,7 +76,6 @@ String name = (String) session.getAttribute("name");
 
 	<script>
 		var ws = null;
-		var name = "<%=name %>";
 		var wsPath = "<%=wsPath %>";
 		var basePath = '<%=basePath %>';
 		

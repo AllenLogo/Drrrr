@@ -1,3 +1,11 @@
+/**
+ * 作者：李鹏飞
+ * 时间：2016-2-26
+ * 拦截器
+ * 路径：/HallWebSocketServer
+ * 作用：
+ * 	检验请求是否可以申请大厅级别websocket
+ */
 package hall.websocket.interceptor;
 
 import java.util.Map;
@@ -8,6 +16,8 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
+
+import user.User;
 
 
 
@@ -21,15 +31,10 @@ public class HallHandshakeInterceptor extends HttpSessionHandshakeInterceptor {
 		
 		if (request instanceof ServletServerHttpRequest) {
 			
-			String name = session.getAttribute("name") != null ? (String)session.getAttribute("name"):null;
-	        String ip = session.getAttribute("ip") != null ? (String)session.getAttribute("ip"):null;
-	        String state = session.getAttribute("state") != null ? (String)session.getAttribute("state"):null;
+			User user = (User) session.getAttribute("user");
 			
-			if ( name != null && name != "" &&
-		        	ip != null && ip != "" &&
-		        	state == "1" ) {
-				map.put("name", name);
-				map.put("ip", ip);
+			if( user != null && user.isLogin() ){
+				map.put("user", user);
 				return true;
 			}else{
 				return false;
