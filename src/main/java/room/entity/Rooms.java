@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 public class Rooms {
 
@@ -31,6 +32,20 @@ public class Rooms {
 			result.add(room.getHall_Room_info());
 		}
 		return result.toString();
+	}
+	
+	public String getAdminRoom(){
+		JSONArray res_data = JSONArray.fromObject("[]");
+		for(Room room : roomList ){
+				JSONObject jo = JSONObject.fromObject("{}");
+				jo.accumulate("roomname", room.getRoomName());
+				jo.accumulate("roomhost", room.getHost());
+				jo.accumulate("roompwd", room.getPwd());
+				jo.accumulate("roomcount", room.getCount());
+				jo.accumulate("roomnumber", room.getNumber());
+				res_data.add(jo.toString());
+		}
+		return res_data.toString();
 	}
 	
 	public boolean insertRooms(Room room){

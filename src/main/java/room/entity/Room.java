@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
 import org.apache.log4j.Logger;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -174,6 +177,24 @@ public class Room {
 			map.clear();
 		}
 		return JsonTool.buildStrig(maps);
+	}
+	
+	public String getAdminRoom(){
+		User user;
+		JSONArray res_data = JSONArray.fromObject("[]");
+		for(WebSocketSession session : sessions ){
+				JSONObject jo = JSONObject.fromObject("{}");
+				user = (User) session.getAttributes().get("user");
+				jo.accumulate("username", user.getName());
+				jo.accumulate("ip", user.getIp());
+				if( user.getName().equals(this.host) ){
+					jo.accumulate("roommember", "主人");
+				}else{
+					jo.accumulate("roommember", "成员");
+				}
+				res_data.add(jo.toString());
+		}
+		return res_data.toString();
 	}
 	
 	/**
