@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
 import org.apache.log4j.Logger;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -61,6 +64,19 @@ public class Hall {
 			return false;
 		else
 			return true;
+	}
+	
+	public String getHallUser(){
+		User user;
+		JSONArray res_data = JSONArray.fromObject("[]");
+		for(WebSocketSession session : hallList ){
+				JSONObject jo = JSONObject.fromObject("{}");
+				user = (User) session.getAttributes().get("user");
+				jo.accumulate("username", user.getName());
+				jo.accumulate("ip", user.getIp());
+				res_data.add(jo.toString());
+		}
+		return res_data.toString();
 	}
 	
 	public void sendMessage(String message){
