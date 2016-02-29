@@ -89,7 +89,7 @@ public class HallController {
 		String name = StringTool.getMyURLEncoder(roomname);
 		User user = (User) session.getAttribute("user");
 		Room room = null;
-		if (user == null) {
+		if (user == null || !user.isLogin()) {
 			return "redirect:/hall.jsp";
 		}
 		room = user.getRoom();
@@ -102,6 +102,21 @@ public class HallController {
 			return "room";
 		}else{
 			return "redirect:/hall.jsp";
+		}
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/outroom",produces = "text/html;charset=UTF-8",method = {RequestMethod.POST})
+	public String outroom(HttpSession session){
+		User user = (User) session.getAttribute("user");
+		if( user != null && user.isLogin() && user.HallorRoom() ){
+			Room room = user.getRoom();
+			room.remvoeUser(user.getName());
+			user.setRoom(null);
+			user.setStyle("");
+			return "";	
+		}else{
+			return JsonTool.getMessage("type", "error","content", "\"未登录\"");
 		}
 	}
 	

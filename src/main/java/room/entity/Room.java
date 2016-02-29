@@ -235,7 +235,11 @@ public class Room {
 			User user = (User) m.getAttributes().get("user");
 			if( user.getName().equals(name) ){
 				try {
+					TextMessage Textmsg = new TextMessage(JsonTool.getMessage("type","4","content","你被管理员请出聊天室").getBytes());
+					m.sendMessage(Textmsg);
 					m.close();
+					user.Dectory();
+					remvoeUser(name);
 				} catch (IOException e) {
 					log.info(e.getMessage());
 				}

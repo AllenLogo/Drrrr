@@ -32,6 +32,13 @@ String wsPath = request.getServerName()+":"+request.getServerPort()+path+"/";
             			<span class="room-title-capacity">(/)</span>
             			<span class="room-title-name"></span>
           			</h2>
+          			<ul class="menu">
+			            <li style="display: list-item;" class="dropdown">
+			              <a class="preferences" role="button" data-toggle="dropdown" href="#">
+			                <i class="icon icon-settings">Logout</i>
+			              </a>
+			            </li>
+			          </ul>
           			<span class="to-whom">To</span>
         		</div>
 
@@ -86,6 +93,11 @@ String wsPath = request.getServerName()+":"+request.getServerPort()+path+"/";
 	        popupButtonClasses: 'fa fa-smile-o'
 	      });
 	      window.emojiPicker.discover();
+	    });
+	    $(".preferences").click(function(){
+	    	$.post(basePath+'outroom', null, function(data) {
+	    		location.href = basePath+"hall.jsp";
+			});
 	    });
   	</script>
 </body>

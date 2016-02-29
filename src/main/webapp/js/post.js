@@ -14,11 +14,9 @@ function CreateRoom(roomname,member,pwd,$el) {
 	$.post(basePath+'createroom', submitData, function(data) {
 		data = json_parse(data);
 		if( ("type" in data) && data.type == "success" ){
-			$.tooltip('创建成功，2秒后进入聊天室',2000,true);
-			setTimeout(function(){ 
-				var url = "http://" + wsPath + "room/"+encodeURI(encodeURI(roomname));
-				$el.hDialog('close',{box:'#HBox1'},url);
-			},2000);
+			$.tooltip('聊天室创建成功',2000,true);
+			var url = "http://" + wsPath + "room/"+encodeURI(encodeURI(roomname));
+			$el.hDialog('close',{box:'#HBox1'},url);
 		}else if( ("type" in data) && data.type == "error" ){
 			$.tooltip(data.content);
 		}
