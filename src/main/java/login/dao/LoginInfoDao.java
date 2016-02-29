@@ -20,4 +20,8 @@ public interface LoginInfoDao {
 	public List<LoginInfo> getLoingInfoByLoginTime(Timestamp logintime);
 	
 	public void insertLoginInfo(User user);
+	//用户
+	
+	public boolean selectAdmin(String name,String pwd);
+	//管理员
 }

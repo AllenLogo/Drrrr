@@ -9,12 +9,10 @@ package login.impl;
 
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import user.User;
-
-
 import login.dao.LoginInfoDao;
 import login.dao.LoginServiceDao;
+
 public class LoginServiceImpl implements LoginServiceDao {
 	
 	@Autowired
@@ -41,5 +39,9 @@ public class LoginServiceImpl implements LoginServiceDao {
 	        ip = request.getRemoteAddr(); 
 	    } 
 	    return ip; 
+	}
+
+	public boolean login(String name, String pwd) {
+		return logininfoDao.selectAdmin(name, pwd);
 	}
 }

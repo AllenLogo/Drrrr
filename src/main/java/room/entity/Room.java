@@ -126,7 +126,8 @@ public class Room {
 	public boolean findMember(String name){
 		if( !this.isOpen() ){return false;}
 		for( WebSocketSession m : sessions ){
-			if( m.getAttributes().get("name").equals(name) )
+			User user = (User) m.getAttributes().get("user");
+			if( user.getName().equals(name) )
 				return true;
 				
 		}
@@ -201,8 +202,8 @@ public class Room {
 	 * @return 新增聊天室，大厅更新聊天室列表所需信息
 	 */
 	public String getHall_Room_info(){
-		if( !this.isOpen() ){return "";}
-		return JsonTool.buildMessage_hall_02(roomName, host, number, count, getPwd());
+		if( !this.isOpen() ){return "{}";}
+		return JsonTool.getMessage("roomname",roomName,"roomhost",host,"roomnumber",number+"","roomcount",count+"","roompwd",getPwd()+"");
 	}
 	
 	/**
@@ -226,6 +227,23 @@ public class Room {
 		if( !this.isOpen() ){return ;}
 		if( !this.host.equals(name)){return ;}
 		this.dectoryRoom();
+	}
+	
+	public boolean closeMember(String name){
+		if( !this.isOpen() ){return false;}
+		for( WebSocketSession m : sessions ){
+			User user = (User) m.getAttributes().get("user");
+			if( user.getName().equals(name) ){
+				try {
+					m.close();
+				} catch (IOException e) {
+					log.info(e.getMessage());
+				}
+				return true;
+			}
+				
+		}
+		return false;
 	}
 	
 	

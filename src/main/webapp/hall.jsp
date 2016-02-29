@@ -11,7 +11,7 @@ String wsPath = request.getServerName()+":"+request.getServerPort()+path+"/";
 	<title>聊天室大厅</title>
 	
 	<!-- 基本样式 -->
-	<link rel="stylesheet" href="css/common.css"/>
+	<link rel="stylesheet" href="<%=basePath %>css/common.css"/>
 	<style>
 	div {
 		margin-left: auto;
@@ -79,11 +79,11 @@ String wsPath = request.getServerName()+":"+request.getServerPort()+path+"/";
 			<div id="roomlist2" ></div>
 		</div>
 <!-- json解析 -->
-<script type="text/javascript" src="js/JSON-js-master/json_parse_state.js" ></script>
+<script type="text/javascript" src="<%=basePath %>js/JSON-js-master/json_parse_state.js" ></script>
 <!-- jquery库 -->
-<script type="text/javascript" src="js/jquery-1.11.1.min.js" ></script>
+<script type="text/javascript" src="<%=basePath %>js/jquery-1.11.1.min.js" ></script>
 <!-- 弹出框库 -->
-<script src="js/jquery.hDialog.min.js"></script>
+<script src="<%=basePath %>js/jquery.hDialog.min.js"></script>
 <script type="text/javascript">
 	/* 全局变量 */
 	var wsPath = "<%=wsPath %>";
@@ -131,8 +131,8 @@ String wsPath = request.getServerName()+":"+request.getServerPort()+path+"/";
 	
 </script>	
 <!-- WebSocket -->
-<script type="text/javascript" src="js/websocket.js"></script>
+<script type="text/javascript" src="<%=basePath %>js/websocket.js"></script>
 <!-- 提交 -->
-<script type="text/javascript" src="js/post.js"></script>
+<script type="text/javascript" src="<%=basePath %>js/post.js"></script>
 </body>
 </html>

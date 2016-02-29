@@ -4,14 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class Rooms {
 
-	private Logger log = Logger.getLogger(Rooms.class);
 	private static List<Room> roomList = Collections.synchronizedList(new ArrayList<Room>());
 	
 	static class RoomHolder {	  
@@ -51,12 +48,10 @@ public class Rooms {
 	public boolean insertRooms(Room room){
 		for(Room r : roomList){
 			if(r.getRoomName().equals(room.getRoomName())){
-				log.info(room.getHost()+"创建房间："+room.getRoomName()+"失败。原因：房间名重复");
 				return false;
 			}
 		}
 		roomList.add(room);
-		log.info(room.getHost()+"创建房间："+room.getRoomName()+"成功。");
 		return true;
 	}
 	

@@ -71,4 +71,15 @@ public class LoginInfoImpl extends JdbcDaoSupport implements LoginInfoDao  {
 		getJdbcTemplate().update(sql.toString(), user.getName(),user.getIp());
 	}
 
+	public boolean selectAdmin(String name, String pwd) {
+		StringBuilder sql = new StringBuilder("SELECT count(id) as number FROM manager where name = ? and pwd = ?;");
+		log.info("SQL语句："+sql.toString()+"--参数1："+name+"--参数2："+pwd);
+		int number = getJdbcTemplate().queryForObject(sql.toString(), new Object[] {name,pwd}, Integer.class);
+		if(number==1){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
 }

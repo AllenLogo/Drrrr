@@ -8,9 +8,6 @@
  */
 package controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import hall.entity.Hall;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,62 +39,48 @@ public class HallController {
 
 	@ResponseBody
 	@RequestMapping(value = "/createroom",produces = "text/html;charset=UTF-8",method = RequestMethod.POST)
-	public String  createroom(@RequestParam(name="roomname") String roomname,
-							   @RequestParam(name="member") int member,
-							   @RequestParam(name="pwd") String pwd,
-							   HttpServletRequest request){
+	public String  createroom(@RequestParam(name="roomname") String roomname,@RequestParam(name="member") int member,@RequestParam(name="pwd") String pwd,HttpServletRequest request){
 		
 		User user = (User) request.getSession().getAttribute("user");
-		
-		Room room = new Room(roomname,user.getName(),member,pwd);
-		Map<String,String> res_map = new HashMap<String,String>();
+		if( user != null && user.isLogin() ){
+			Room room = new Room(roomname,user.getName(),member,pwd);
 
-		if( Rooms.getInstance().insertRooms(room) ){
-			res_map.put("type", "02");
-			res_map.put("room", room.getHall_Room_info());
-			Hall.getInstance().sendMessage(JsonTool.buildStrig(res_map));
-			log.info("[Name："+user.getName()+"，IP："+user.getIp()+",事件：创建房间："+roomname+"]");
-			res_map.clear();
-			res_map.put("type", "success");
+			if( Rooms.getInstance().insertRooms(room) ){
+				Hall.getInstance().sendMessage(JsonTool.getMessage("type","02","room",room.getHall_Room_info()));
+				log.info("[Name："+user.getName()+"，IP："+user.getIp()+",事件：创建房间："+roomname+"成功]");
+				return JsonTool.getMessage("type", "success");
+			}else{
+				log.info("[Name："+user.getName()+"，IP："+user.getIp()+",事件：创建房间："+roomname+"失败]");
+				return JsonTool.getMessage("type", "error","content", "\"聊天室名称重复\"");
+			}
 		}else{
-			res_map.put("type", "error");
-			res_map.put("content", "\"聊天室名称重复\"");
+			return JsonTool.getMessage("type", "error","content", "\"未登录\"");
 		}
-		return JsonTool.buildMessage(res_map).toString();
 	}
 	
 	@ResponseBody
 	@RequestMapping(value = "/addroom/{roomname}",produces = "text/html;charset=UTF-8",method = {RequestMethod.POST})
-	public String addroom(@PathVariable("roomname") String roomname,
-			HttpServletResponse response,
-			String pwd,
-			HttpSession session){
-		String name = StringTool.getMyURLEncoder(roomname);
-		Room room = Rooms.getInstance().findRoomByName(name);
-		Map<String,String> res_map = new HashMap<String,String>();
-		//判断聊天室是否存在，聊天室密码是否正确
-		if( room != null ){
-			if( room.checkPwd(pwd) ){
-				if( room.isCount() ){
-					if( room.findMember(name) ){
-						res_map.put("type", "success");
-					}else{
-						res_map.put("type", "error");
-						res_map.put("content", "\"聊天室已有成员取名："+name+"\"");
-					}
-				}else{
-					res_map.put("type", "error");
-					res_map.put("content", "\"聊天室人满\"");
-				}
-			}else{
-				res_map.put("type", "error");
-				res_map.put("content", "\"聊天室密码错误\"");
+	public String addroom(@PathVariable("roomname") String roomname,HttpServletResponse response,String pwd,HttpSession session){
+		User user = (User) session.getAttribute("user");
+		if( user != null && user.isLogin() ){
+			String name = StringTool.getMyURLEncoder(roomname);
+			Room room = Rooms.getInstance().findRoomByName(name);
+			if( room == null ){
+				return JsonTool.getMessage("type", "error","content", "\"聊天室不存在\"");
 			}
+			if( room.checkPwd(pwd) ){
+				return JsonTool.getMessage("type", "error","content", "\"聊天室密码错误\"");
+			}
+			if( room.isCount() ){
+				return JsonTool.getMessage("type", "error","content", "\"聊天室人满\"");
+			}
+			if( !room.findMember(user.getName()) ){
+				return JsonTool.getMessage("type", "error","content", "\"聊天室已有成员取名："+user.getName()+"\"");
+			}
+			return JsonTool.getMessage("type", "success");
 		}else{
-			res_map.put("type", "error");
-			res_map.put("content", "\"聊天室不存在\"");
+			return JsonTool.getMessage("type", "error","content", "\"未登录\"");
 		}
-		return JsonTool.buildMessage(res_map).toString();
 	}
 	
 	
