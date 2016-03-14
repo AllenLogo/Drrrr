@@ -3,6 +3,7 @@
  * 时间：2026-2-26
  * 聊天室实体类
  */
+
 package room.entity;
 
 
@@ -10,10 +11,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -33,7 +32,7 @@ public class Room {
 	private int number;						//聊天室实际人数
 	private String pwd;							//聊天室密码
 	private List<WebSocketSession> sessions;	//聊天室websocket链表
-	private Set<String> user;					//聊天室成员链表
+	private List<User> users;					//聊天室成员链表
 	private boolean roomState=false;			//聊天室状态标志
 	
 	/**
@@ -46,7 +45,7 @@ public class Room {
 		this.setPwd(pwd);
 		this.number=0;
 		this.sessions = Collections.synchronizedList(new ArrayList<WebSocketSession>());
-		this.user = new HashSet<String>();
+		this.users = Collections.synchronizedList(new ArrayList<User>());
 		this.OpenRoom();
 	}
 	
@@ -71,11 +70,11 @@ public class Room {
 		}
 	}
 	
-	public boolean addUser(String name){
+	public boolean addUser(User user){
 		if(!this.isOpen()){return false;}
 		if(this.number >= count) {return false;}
-		if(!this.user.contains(name)){
-			this.user.add(name);
+		if(!this.users.contains(user)){
+			this.users.add(user);
 			this.number++;
 			return true;
 		}
@@ -105,11 +104,11 @@ public class Room {
 		}
 	}
 	
-	public void remvoeUser(String name){
+	public void remvoeUser(User user){
 		if(!this.isOpen()){return ;}
 		if(this.number >= count) {return ;}
-		if(this.user.contains(name)){
-			this.user.remove(name);
+		if(this.users.contains(user)){
+			this.users.remove(user);
 			this.number--;
 		}
 	}
@@ -169,9 +168,7 @@ public class Room {
 		if( !this.isOpen() ){return "";}
 		Map<String,String> maps = new HashMap<String,String>();
 		Map<String,String> map = new HashMap<String,String>();
-		User user;
-		for( WebSocketSession session : sessions ){
-			user =(User) session.getAttributes().get("user");
+		for( User user : users ){
 			map.put("name", user.getName());
 			map.put("style", user.getStyle());
 			maps.put(user.getName(), JsonTool.buildStrig(map));
@@ -239,7 +236,7 @@ public class Room {
 					m.sendMessage(Textmsg);
 					m.close();
 					user.Dectory();
-					remvoeUser(name);
+					remvoeUser(user);
 				} catch (IOException e) {
 					log.info(e.getMessage());
 				}

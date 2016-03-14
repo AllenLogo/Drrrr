@@ -18,15 +18,20 @@ public class LoginServiceImpl implements LoginServiceDao {
 	@Autowired
 	private LoginInfoDao logininfoDao;
 	
-	//登陆流程
+	/**
+	 * 数据库存储用户登录信息
+	 */
 	public User login(String name, HttpServletRequest request) {
-		User user = new User();
-		user.setName(name);
-		user.setIp(getIpAddr(request));
+		User user = new User(name, getIpAddr(request), "login");
 		logininfoDao.insertLoginInfo(user);
 		return user;
 	}
 	
+	/**
+	 * 获取ip地址
+	 * @param request
+	 * @return
+	 */
 	public String getIpAddr(HttpServletRequest request) { 
 	    String ip = request.getHeader("x-forwarded-for"); 
 	    if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
@@ -41,6 +46,9 @@ public class LoginServiceImpl implements LoginServiceDao {
 	    return ip; 
 	}
 
+	/**
+	 * 验证登录
+	 */
 	public boolean login(String name, String pwd) {
 		return logininfoDao.selectAdmin(name, pwd);
 	}

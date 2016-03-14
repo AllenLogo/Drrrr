@@ -23,6 +23,8 @@ public class Hall {
 	private Logger log = Logger.getLogger(Hall.class);
 	private static List<WebSocketSession> hallList = Collections.synchronizedList(new ArrayList<WebSocketSession>());
 	
+	private Hall(){}
+	
 	static class UserHolder {	  
 		 static Hall user = new Hall();  
 	}

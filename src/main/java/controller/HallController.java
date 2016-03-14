@@ -6,12 +6,12 @@
  * 1、创建聊天室
  * 2、加入聊天室
  */
+
 package controller;
 
 import hall.entity.Hall;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
@@ -40,27 +40,30 @@ public class HallController {
 	@ResponseBody
 	@RequestMapping(value = "/createroom",produces = "text/html;charset=UTF-8",method = RequestMethod.POST)
 	public String  createroom(@RequestParam(name="roomname") String roomname,@RequestParam(name="member") int member,@RequestParam(name="pwd") String pwd,HttpServletRequest request){
-		
+		//获取用户信息，是否登录
 		User user = (User) request.getSession().getAttribute("user");
 		if( user != null && user.isLogin() ){
+			//初始化聊天室信息
 			Room room = new Room(roomname,user.getName(),member,pwd);
 
 			if( Rooms.getInstance().insertRooms(room) ){
+				room.addUser(user);
+				user.setRoom(room);
 				Hall.getInstance().sendMessage(JsonTool.getMessage("type","02","room",room.getHall_Room_info()));
-				log.info("[Name："+user.getName()+"，IP："+user.getIp()+",事件：创建房间："+roomname+"成功]");
+				log.info(user.info()+"事件：创建房间："+roomname+"成功]");
 				return JsonTool.getMessage("type", "success");
 			}else{
-				log.info("[Name："+user.getName()+"，IP："+user.getIp()+",事件：创建房间："+roomname+"失败]");
-				return JsonTool.getMessage("type", "error","content", "\"聊天室名称重复\"");
+				log.info(user.info()+"事件：创建房间："+roomname+"失败]");
+				return JsonTool.getMessage("type", "error","content", "\"聊天室名重复\"");
 			}
 		}else{
-			return JsonTool.getMessage("type", "error","content", "\"未登录\"");
+			return JsonTool.getMessage("type", "error","content", "\"请登录\"");
 		}
 	}
 	
 	@ResponseBody
 	@RequestMapping(value = "/addroom/{roomname}",produces = "text/html;charset=UTF-8",method = {RequestMethod.POST})
-	public String addroom(@PathVariable("roomname") String roomname,HttpServletResponse response,String pwd,HttpSession session){
+	public String addroom(@PathVariable("roomname") String roomname, String pwd,HttpSession session){
 		User user = (User) session.getAttribute("user");
 		if( user != null && user.isLogin() ){
 			String name = StringTool.getMyURLEncoder(roomname);
@@ -68,15 +71,17 @@ public class HallController {
 			if( room == null ){
 				return JsonTool.getMessage("type", "error","content", "\"聊天室不存在\"");
 			}
-			if( room.checkPwd(pwd) ){
+			if( !room.checkPwd(pwd) ){
 				return JsonTool.getMessage("type", "error","content", "\"聊天室密码错误\"");
 			}
-			if( room.isCount() ){
+			if( !room.isCount() ){
 				return JsonTool.getMessage("type", "error","content", "\"聊天室人满\"");
 			}
-			if( !room.findMember(user.getName()) ){
+			if( room.findMember(user.getName()) ){
 				return JsonTool.getMessage("type", "error","content", "\"聊天室已有成员取名："+user.getName()+"\"");
 			}
+			room.addUser(user);
+			user.setRoom(room);
 			return JsonTool.getMessage("type", "success");
 		}else{
 			return JsonTool.getMessage("type", "error","content", "\"未登录\"");
@@ -90,13 +95,14 @@ public class HallController {
 		User user = (User) session.getAttribute("user");
 		Room room = null;
 		if (user == null || !user.isLogin()) {
-			return "redirect:/hall.jsp";
+			return "redirect:/index.jsp";
 		}
 		room = user.getRoom();
 		if(room == null || room.getRoomName().equals(name)){
 			room = Rooms.getInstance().findRoomByName(name);
 		}
 		if(room != null && room.isOpen() && room.isCount()){
+			room.addUser(user);
 			user.setRoom(room);
 			user.setStyle(styleList.getRandomStyle());
 			return "room";
@@ -111,7 +117,7 @@ public class HallController {
 		User user = (User) session.getAttribute("user");
 		if( user != null && user.isLogin() && user.HallorRoom() ){
 			Room room = user.getRoom();
-			room.remvoeUser(user.getName());
+			room.remvoeUser(user);
 			user.setRoom(null);
 			user.setStyle("");
 			return "";	

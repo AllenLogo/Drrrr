@@ -3,6 +3,7 @@
  * 时间：2016-2-25
  * 数据库处理
  */
+
 package login.impl;
 
 import java.sql.ResultSet;
@@ -65,12 +66,20 @@ public class LoginInfoImpl extends JdbcDaoSupport implements LoginInfoDao  {
 		return null;
 	}
 
+
+	
+	/**
+	 * 数据库存储信息
+	 */
 	public void insertLoginInfo(User user) {
 		StringBuilder sql = new StringBuilder("insert into logininfo(name,ip) values(?,?);");
 		log.info("SQL语句："+sql.toString()+"--参数1："+user.getName()+"--参数2："+user.getIp());
 		getJdbcTemplate().update(sql.toString(), user.getName(),user.getIp());
 	}
 
+	/**
+	 * 数据库查询信息
+	 */
 	public boolean selectAdmin(String name, String pwd) {
 		StringBuilder sql = new StringBuilder("SELECT count(id) as number FROM manager where name = ? and pwd = ?;");
 		log.info("SQL语句："+sql.toString()+"--参数1："+name+"--参数2："+pwd);

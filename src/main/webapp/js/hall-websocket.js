@@ -26,7 +26,6 @@ function startWebSocket() {
 	};
 	ws.onopen = function(evt) {
 	};
-	
 }
 /*
  * 信息处理函数

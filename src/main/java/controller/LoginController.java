@@ -3,8 +3,9 @@
  * 时间：2016-2-25
  * 登陆请求处理
  * 1、数据库记录用户名、IP地址、登陆时间
- * 2、用户名、IP地址、登陆状态放入session
+ * 2、用户User类放入session
  */
+
 package controller;
 
 
@@ -31,10 +32,10 @@ public class LoginController {
 	
 	@RequestMapping( value="/login",method = RequestMethod.POST )
 	public String test( @RequestParam("name") String name, HttpServletRequest request){
-		//获取用户名、IP并将登陆信息存入数据库
+		
+		//数据库记录登录用户信息
 		User user = loginService.login(name, request);
-		//用户名、IP、登陆状态存入session
-		user.setState("login");
+		//用户User类存入session
 		request.getSession().setAttribute("user", user);
 		return "redirect:hall.jsp";
 	}

@@ -11,6 +11,7 @@
 package filter;
 
 import java.io.IOException;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +27,7 @@ public class indexFilter extends  OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest servletRequest,
 			HttpServletResponse servletResponse, FilterChain filterChain)
 			throws ServletException, IOException {
+		
 		//获取用户基本信息
 		User user = (User) servletRequest.getSession().getAttribute("user");
         

@@ -78,12 +78,17 @@ String wsPath = request.getServerName()+":"+request.getServerPort()+path+"/";
 			<span>聊天室---有密码</span>
 			<div id="roomlist2" ></div>
 		</div>
-<!-- json解析 -->
+		
+<!-- json解析库 -->
 <script type="text/javascript" src="<%=basePath %>js/JSON-js-master/json_parse_state.js" ></script>
 <!-- jquery库 -->
 <script type="text/javascript" src="<%=basePath %>js/jquery-1.11.1.min.js" ></script>
 <!-- 弹出框库 -->
 <script src="<%=basePath %>js/jquery.hDialog.min.js"></script>
+<!-- WebSocket -->
+<script type="text/javascript" src="<%=basePath %>js/hall-websocket.js"></script>
+<!-- 提交 -->
+<script type="text/javascript" src="<%=basePath %>js/post.js"></script>
 <script type="text/javascript">
 	/* 全局变量 */
 	var wsPath = "<%=wsPath %>";
@@ -119,6 +124,7 @@ String wsPath = request.getServerName()+":"+request.getServerPort()+path+"/";
 		$('#'+roomname).hDialog({box:'#HBox',width:600,height: 150,modalHide: false});
 		$('#'+roomname).trigger("click");
 	}
+	
 	/* 加入有密码聊天室 */
 	$('#submitBtn').click(function() { 
 		var $pwd = $('#pwd');
@@ -129,10 +135,6 @@ String wsPath = request.getServerName()+":"+request.getServerPort()+path+"/";
 		}
 	});
 	
-</script>	
-<!-- WebSocket -->
-<script type="text/javascript" src="<%=basePath %>js/websocket.js"></script>
-<!-- 提交 -->
-<script type="text/javascript" src="<%=basePath %>js/post.js"></script>
+</script>
 </body>
 </html>
