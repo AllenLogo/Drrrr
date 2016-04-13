@@ -14,6 +14,8 @@
 		
 		
 		<bean id="loginService" class="login.impl.LoginServiceImpl" ></bean>
+		<bean id="messageService" class="message.service.impl.MessageServiceImpl" ></bean>
+
 		<bean id="styleList" class="tools.Styles" >
 			<property name="list">
 				<list>

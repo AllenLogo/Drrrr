@@ -1,14 +1,11 @@
 package login.dao;
 
-
 import javax.servlet.http.HttpServletRequest;
-
 import user.User;
 
+public abstract interface LoginServiceDao
+{
+  public abstract User login(String paramString, HttpServletRequest paramHttpServletRequest);
 
-public interface LoginServiceDao {
-
-	public User login(String name,HttpServletRequest request);
-
-	public boolean login(String name,String pwd);
+  public abstract boolean login(String paramString1, String paramString2);
 }

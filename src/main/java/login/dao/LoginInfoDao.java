@@ -2,26 +2,24 @@ package login.dao;
 
 import java.sql.Timestamp;
 import java.util.List;
-
+import login.entity.LoginInfo;
 import user.User;
 
-import login.entity.LoginInfo;
+public abstract interface LoginInfoDao
+{
+  public abstract List<LoginInfo> getAllLoingInfo();
 
+  public abstract List<LoginInfo> getLoingInfo(String paramString1, String paramString2);
 
-public interface LoginInfoDao {
-	
-	public List<LoginInfo> getAllLoingInfo();
-	
-	public List<LoginInfo> getLoingInfo(String name,String ip);
-	public List<LoginInfo> getLoingInfo(String name,String ip,Timestamp logintime);
-	
-	public List<LoginInfo> getLoingInfoByName(String name);
-	public List<LoginInfo> getLoingInfoByIp(String ip);
-	public List<LoginInfo> getLoingInfoByLoginTime(Timestamp logintime);
-	
-	public void insertLoginInfo(User user);
-	//用户
-	
-	public boolean selectAdmin(String name,String pwd);
-	//管理员
+  public abstract List<LoginInfo> getLoingInfo(String paramString1, String paramString2, Timestamp paramTimestamp);
+
+  public abstract List<LoginInfo> getLoingInfoByName(String paramString);
+
+  public abstract List<LoginInfo> getLoingInfoByIp(String paramString);
+
+  public abstract List<LoginInfo> getLoingInfoByLoginTime(Timestamp paramTimestamp);
+
+  public abstract void insertLoginInfo(User paramUser);
+
+  public abstract boolean selectAdmin(String paramString1, String paramString2);
 }

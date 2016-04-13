@@ -1,11 +1,4 @@
-/**
- * 作者：李鹏飞
- * 时间：2026-2-26
- * 聊天室实体类
- */
-
 package room.entity;
-
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,298 +6,255 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.apache.log4j.Logger;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import tools.JsonTool;
 import user.User;
 
-public class Room {
-	private Logger log = Logger.getLogger(Room.class);
-	
-	private String roomName;					//聊天室名称
-	private String host;						//聊天室主人
-	private int count;							//聊天室限制人数
-	private int number;						//聊天室实际人数
-	private String pwd;							//聊天室密码
-	private List<WebSocketSession> sessions;	//聊天室websocket链表
-	private List<User> users;					//聊天室成员链表
-	private boolean roomState=false;			//聊天室状态标志
-	
-	/**
-	 * 构造函数
-	 */
-	public Room(String roomName,String host,int count,String pwd){
-		this.setRoomName(roomName);
-		this.setHost(host);
-		this.setCount(count);
-		this.setPwd(pwd);
-		this.number=0;
-		this.sessions = Collections.synchronizedList(new ArrayList<WebSocketSession>());
-		this.users = Collections.synchronizedList(new ArrayList<User>());
-		this.OpenRoom();
-	}
-	
-	/**
-	 * 
-	 * @param session
-	 * @return
-	 * 
-	 * 用户加入
-	 * 人数增加
-	 * 日志记录
-	 * 
-	 */
-	public boolean insertMember(WebSocketSession session){
-		if( !this.isOpen() ){return false;}
-		
-		if( session.isOpen() && !sessions.contains(session)  ){
-			this.sessions.add(session);
-			return true;
-		}else{
-			return false;
-		}
-	}
-	
-	public boolean addUser(User user){
-		if(!this.isOpen()){return false;}
-		if(this.number >= count) {return false;}
-		if(!this.users.contains(user)){
-			this.users.add(user);
-			this.number++;
-			return true;
-		}
-		return false;
-	}
-	
-	
-	
-	/**
-	 * 
-	 * @param session
-	 * @return
-	 * 
-	 * 用户退出
-	 * 人数减少
-	 * 主人销毁
-	 * 日志记录
-	 */
-	public boolean removeMember(WebSocketSession session){
-		if( !this.isOpen() ){return false;}
+public class Room
+{
+  private Logger log = Logger.getLogger(Room.class);
+  private String roomName;
+  private String host;
+  private int count;
+  private int number;
+  private String pwd;
+  private List<WebSocketSession> sessions;
+  private List<User> users;
+  private boolean roomState = false;
 
-		if( this.sessions.contains(session) ){
-			this.sessions.remove(session);
-			return true;
-		}else{
-			return false;
-		}
-	}
-	
-	public void remvoeUser(User user){
-		if(!this.isOpen()){return ;}
-		if(this.number >= count) {return ;}
-		if(this.users.contains(user)){
-			this.users.remove(user);
-			this.number--;
-		}
-	}
-	
-	
-	/**
-	 * 
-	 * @param name
-	 * @return
-	 * 
-	 * 用户查找
-	 * 
-	 */
-	public boolean findMember(String name){
-		if( !this.isOpen() ){return false;}
-		for( WebSocketSession m : sessions ){
-			User user = (User) m.getAttributes().get("user");
-			if( user.getName().equals(name) )
-				return true;
-				
-		}
-		return false;
-	}
-	
-	public void sendMessage(String message){
-		if( !this.isOpen() ){return ;}
-		TextMessage Textmsg = new TextMessage(message.getBytes());
-		for( WebSocketSession session : sessions ){
-			if( session.isOpen() ){
-				try {
-					session.sendMessage(Textmsg);
-					log.info("[服务器发送消息成功："+message+"]");
-				} catch (IOException e) {
-					log.error("[服务器发送消息失败："+message+"]");
-				}
-			}
-		}
-	}
+  public Room(String roomName, String host, int count, String pwd)
+  {
+    setRoomName(roomName);
+    setHost(host);
+    setCount(count);
+    setPwd(pwd);
+    this.number = 0;
+    this.sessions = Collections.synchronizedList(new ArrayList());
+    this.users = Collections.synchronizedList(new ArrayList());
+    OpenRoom();
+  }
 
-	public String getRoom_info(){
-		if( !this.isOpen() ){return "";}
-		Map<String,String> map = new HashMap<String,String>();
-		map.put("room_name", this.roomName);
-		map.put("room_number", ""+this.number);
-		map.put("room_count", ""+this.count);
-		map.put("room_list", getMember_map());
-		
-		String content = JsonTool.buildStrig(map);
-		map.clear();
-		map.put("type", "3");
-		map.put("content", content);
-		return JsonTool.buildStrig(map);
-	}
-	
-	//{"host":{'name':'lpf','style':'zaika'},"number":{'name':'allen','style':'zaika'}}
-	private String getMember_map(){
-		if( !this.isOpen() ){return "";}
-		Map<String,String> maps = new HashMap<String,String>();
-		Map<String,String> map = new HashMap<String,String>();
-		for( User user : users ){
-			map.put("name", user.getName());
-			map.put("style", user.getStyle());
-			maps.put(user.getName(), JsonTool.buildStrig(map));
-			map.clear();
-		}
-		return JsonTool.buildStrig(maps);
-	}
-	
-	public String getAdminRoom(){
-		User user;
-		JSONArray res_data = JSONArray.fromObject("[]");
-		for(WebSocketSession session : sessions ){
-				JSONObject jo = JSONObject.fromObject("{}");
-				user = (User) session.getAttributes().get("user");
-				jo.accumulate("username", user.getName());
-				jo.accumulate("ip", user.getIp());
-				if( user.getName().equals(this.host) ){
-					jo.accumulate("roommember", "主人");
-				}else{
-					jo.accumulate("roommember", "成员");
-				}
-				res_data.add(jo.toString());
-		}
-		return res_data.toString();
-	}
-	
-	/**
-	 * @return 新增聊天室，大厅更新聊天室列表所需信息
-	 */
-	public String getHall_Room_info(){
-		if( !this.isOpen() ){return "{}";}
-		return JsonTool.getMessage("roomname",roomName,"roomhost",host,"roomnumber",number+"","roomcount",count+"","roompwd",getPwd()+"");
-	}
-	
-	/**
-	 * 聊天室销毁
-	 * 内部调用
-	 * @param name
-	 */
-	private void dectoryRoom(){
-		if( !this.isOpen() ){return ;}
-		this.sessions.clear();
-		this.CloseRoom();
-		Rooms.getInstance().removeRooms(this);
-	}
-	
-	/**
-	 * 聊天室销毁
-	 * 主人外部调用
-	 * @param name
-	 */
-	public void dectoryRoom(String name){
-		if( !this.isOpen() ){return ;}
-		if( !this.host.equals(name)){return ;}
-		this.dectoryRoom();
-	}
-	
-	public boolean closeMember(String name){
-		if( !this.isOpen() ){return false;}
-		for( WebSocketSession m : sessions ){
-			User user = (User) m.getAttributes().get("user");
-			if( user.getName().equals(name) ){
-				try {
-					TextMessage Textmsg = new TextMessage(JsonTool.getMessage("type","4","content","你被管理员请出聊天室").getBytes());
-					m.sendMessage(Textmsg);
-					m.close();
-					user.Dectory();
-					remvoeUser(user);
-				} catch (IOException e) {
-					log.info(e.getMessage());
-				}
-				return true;
-			}
-				
-		}
-		return false;
-	}
-	
-	
-	public String getRoomName() {
-		return roomName;
-	}
+  public boolean insertMember(WebSocketSession session)
+  {
+    if (!isOpen()) return false;
 
-	public void setRoomName(String roomName) {
-		this.roomName = roomName;
-	}
+    if ((session.isOpen()) && (!this.sessions.contains(session))) {
+      this.sessions.add(session);
+      return true;
+    }
+    return false;
+  }
 
-	public String getHost() {
-		return host;
-	}
+  public boolean addUser(User user)
+  {
+    if (!isOpen()) return false;
+    if (this.number >= this.count) return false;
+    if (!this.users.contains(user)) {
+      this.users.add(user);
+      this.number += 1;
+      return true;
+    }
+    return false;
+  }
 
-	public void setHost(String host) {
-		this.host = host;
-	}
+  public boolean removeMember(WebSocketSession session)
+  {
+    if (!isOpen()) return false;
 
-	public int getCount() {
-		return count;
-	}
+    if (this.sessions.contains(session)) {
+      this.sessions.remove(session);
+      return true;
+    }
+    return false;
+  }
 
-	public void setCount(int count) {
-		this.count = count;
-	}
+  public void remvoeUser(User user)
+  {
+    if (!isOpen()) return;
+    if (this.number >= this.count) return;
+    if (this.users.contains(user)) {
+      this.users.remove(user);
+      this.number -= 1;
+    }
+  }
 
-	public boolean getPwd() {
-		return (this.pwd != null && this.pwd != "")?true:false;
-	}
-	
-	public boolean checkPwd(String pwd) {
-		return this.pwd.equals(pwd);
-	}
+  public boolean findMember(String name)
+  {
+    if (!isOpen()) return false;
+    for (WebSocketSession m : this.sessions) {
+      User user = (User)m.getAttributes().get("user");
+      if (user.getName().equals(name)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-	private void setPwd(String pwd) {
-		if(pwd == null || "".equals(pwd)){
-			this.pwd = "";
-		}else{
-			this.pwd = pwd;
-		}
-	}
+  public void sendMessage(String message) {
+    if (!isOpen()) return;
+    TextMessage Textmsg = new TextMessage(message.getBytes());
+    for (WebSocketSession session : this.sessions)
+      if (session.isOpen())
+        try {
+          session.sendMessage(Textmsg);
+          this.log.info("[服务器发送消息成功：" + message + "]");
+        } catch (IOException e) {
+          this.log.error("[服务器发送消息失败：" + message + "]");
+        }
+  }
 
-	public int getNumber() {
-		return number;
-	}
-	
-	public boolean isCount() {
-		return count >= number?true:false;
-	}
+  public String getRoom_info()
+  {
+    if (!isOpen()) return "";
+    Map map = new HashMap();
+    map.put("room_name", this.roomName);
+    map.put("room_number", this.number);
+    map.put("room_count", this.count);
+    map.put("room_list", getMember_map());
 
-	private void CloseRoom() {
-		this.roomState = false;
-	}
+    String content = JsonTool.buildStrig(map);
+    map.clear();
+    map.put("type", "3");
+    map.put("content", content);
+    return JsonTool.buildStrig(map);
+  }
 
-	private void OpenRoom() {
-		this.roomState = true;
-	}
-	
-	public boolean isOpen(){
-		return this.roomState;
-	}
+  private String getMember_map()
+  {
+    if (!isOpen()) return "";
+    Map maps = new HashMap();
+    Map map = new HashMap();
+    for (User user : this.users) {
+      map.put("name", user.getName());
+      map.put("style", user.getStyle());
+      maps.put(user.getName(), JsonTool.buildStrig(map));
+      map.clear();
+    }
+    return JsonTool.buildStrig(maps);
+  }
+
+  public String getAdminRoom()
+  {
+    JSONArray res_data = JSONArray.fromObject("[]");
+    for (WebSocketSession session : this.sessions) {
+      JSONObject jo = JSONObject.fromObject("{}");
+      User user = (User)session.getAttributes().get("user");
+      jo.accumulate("username", user.getName());
+      jo.accumulate("ip", user.getIp());
+      if (user.getName().equals(this.host))
+        jo.accumulate("roommember", "主人");
+      else {
+        jo.accumulate("roommember", "成员");
+      }
+      res_data.add(jo.toString());
+    }
+    return res_data.toString();
+  }
+
+  public String getHall_Room_info()
+  {
+    if (!isOpen()) return "{}";
+    return JsonTool.getMessage(new String[] { "roomname", this.roomName, "roomhost", this.host, "roomnumber", this.number+"", "roomcount", this.count+"", "roompwd", getPwd()+"" });
+  }
+
+  private void dectoryRoom()
+  {
+    if (!isOpen()) return;
+    this.sessions.clear();
+    CloseRoom();
+    Rooms.getInstance().removeRooms(this);
+  }
+
+  public void dectoryRoom(String name)
+  {
+    if (!isOpen()) return;
+    if (!this.host.equals(name)) return;
+    dectoryRoom();
+  }
+
+  public boolean closeMember(String name) {
+    if (!isOpen()) return false;
+    for (WebSocketSession m : this.sessions) {
+      User user = (User)m.getAttributes().get("user");
+      if (user.getName().equals(name)) {
+        try {
+          TextMessage Textmsg = new TextMessage(JsonTool.getMessage(new String[] { "type", "4", "content", "你被管理员请出聊天室" }).getBytes());
+          m.sendMessage(Textmsg);
+          m.close();
+          user.Dectory();
+          remvoeUser(user);
+        } catch (IOException e) {
+          this.log.info(e.getMessage());
+        }
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  public String getRoomName()
+  {
+    return this.roomName;
+  }
+
+  public void setRoomName(String roomName) {
+    this.roomName = roomName;
+  }
+
+  public String getHost() {
+    return this.host;
+  }
+
+  public void setHost(String host) {
+    this.host = host;
+  }
+
+  public int getCount() {
+    return this.count;
+  }
+
+  public void setCount(int count) {
+    this.count = count;
+  }
+
+  public boolean getPwd() {
+    return (this.pwd != null) && (this.pwd != "");
+  }
+
+  public boolean checkPwd(String pwd) {
+    return this.pwd.equals(pwd);
+  }
+
+  private void setPwd(String pwd) {
+    if ((pwd == null) || ("".equals(pwd)))
+      this.pwd = "";
+    else
+      this.pwd = pwd;
+  }
+
+  public int getNumber()
+  {
+    return this.number;
+  }
+
+  public boolean isCount() {
+    return this.count >= this.number;
+  }
+
+  private void CloseRoom() {
+    this.roomState = false;
+  }
+
+  private void OpenRoom() {
+    this.roomState = true;
+  }
+
+  public boolean isOpen() {
+    return this.roomState;
+  }
 }

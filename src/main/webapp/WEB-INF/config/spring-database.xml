@@ -14,13 +14,18 @@
 	<!-- 获取数据源 -->
 	<bean id="dataBases"  class="org.springframework.jdbc.datasource.DriverManagerDataSource" >
 		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
-		<property name="url" value="jdbc:mysql://localhost:3306/Drrrr?useUnicode=true&amp;characterEncoding=UTF-8"></property>
+		<property name="url" value="jdbc:mysql://127.0.0.1:3306/Drrrr?useUnicode=true&amp;characterEncoding=UTF-8"></property>
 		<property name="username" value="root"></property>
 		<property name="password" value="123456"></property>
 	</bean>
 	
 	<!-- 登录信息 -->
 	<bean id="logininfoDao" class="login.impl.LoginInfoImpl" >
+		<property name="dataSource" ref="dataBases" ></property>
+	</bean>
+	
+	<!-- 聊天内容 -->
+	<bean id="messageDao" class="message.dao.impl.MessageDaoImpl" >
 		<property name="dataSource" ref="dataBases" ></property>
 	</bean>
 
